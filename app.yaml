@@ -1,0 +1,22 @@
+application: sfllaw-website
+version: 0-1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+  # Redirects
+  - url: /~sfllaw/
+    script: redirects.app
+
+  - url: /programs/index.html
+    script: redirects.app
+
+  # Real site
+  - url: /
+    static_files: static/index.html
+    upload: static/index.html
+
+  - url: /
+    static_dir: static
+
