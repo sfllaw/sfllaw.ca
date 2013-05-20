@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:v="urn:schemas-microsoft-com:vml">
+  <head>
+    <!-- This three column css layout is taken from Matthew James
+	 Taylor's designs:
+	 http://matthewjamestaylor.com/blog/perfect-stacked-columns.htm -->
+    <title>Simon Law's website: Free Software</title>
+    <style type="text/css" media="screen">
+      @import url(stylesheets/insidepages.css);
+    </style>
+  </head>
+  <body>
+    <div class="colmask threecol">
+      <div class="colmid">
+	<div class="colleft">
+	  <div class="col1">
+	    <!-- Column 1 start -->
+	    <h2 style="margin-top: 45px; margin-left: 0px;">Free Software</h2>
+	    <!-- Column 1 end -->
+	  </div>
+	  <div class="col2">
+	    <!-- Column 2 start -->
+	    <img alt="Freesoftware"
+		 src="images/SMALL/freesoftware.jpg" />
+	    <!-- Column 2 end -->
+	  </div>
+	  <div class="col3">
+	    <!-- Column 3 start -->
+	    <!-- nothing goes in here for the title -->
+	    <!-- Column 3 end -->
+	  </div>
+	</div>
+      </div>
+    </div>
+    <!-- -- here is body of the text ---->
+    <div class="colmask threecol">
+      <div class="colmid">
+	<div class="colleft">
+	  <div class="col1">
+	    <!-- Column 1 start -->
+	    <p>I have written various pieces of
+	      <a href="http://www.gnu.org/">Free Software</a>.  I am
+	      maintaining, some software for
+	      the <a href="http://www.debian.org/">Debian
+		Project</a>.  You can find all this and more in
+	      my <a href="programs/">programs</a> directory.</p>
+
+	    <p>In some of my nominal free time, I used to
+	      give <a href="talks/">talks</a> for my fellow
+	      students.  Now I go to conferences and give them
+	      there.</p>
+
+	    <h1>Programs I have written</h1>
+
+	    <h3>apt-rdepends</h3>
+	    <p>Well, I have just finished writing a program for Jeff
+	      Bailey.  The foolish man volunteered to do an NMU on a
+	      library, and now wants to find out what packages
+	      depend on what.  So, I've
+	      written
+	      <a href="programs/apt-rdepends-1.3.0.tar.bz2">apt-rdepends</a>
+	      (1.3.0), a Perl script that hooks into APT and
+	      recursively finds dependencies.  Why not use
+	      apt-cache?  Because apt-cache doesn't know how to
+	      recurse across reverse dependencies.  Of course, I
+	      think it would be marvelous to make apt-rdepends
+	      obsolete, so please hack on apt-cache to do so!</p>
+
+	    <p>This program is licensed under
+	      the <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>csc-tex</h3>
+	    <p>I do some
+	      L<sup><small>A</small></sup>T<small>E</small>X hacking
+	      for
+	      the <a href="http://www.csclub.uwaterloo.ca/">Computer
+		Science Club</a> too.  I've gone and written a
+	      collection of styles for making posters and writing
+	      letters. Get <a href="csc-tex_1.1.tar.gz">version
+		1.1</a>.</p>
+
+	    <p>This program is Copyright &#169; 2002,2003 by the
+	      Computer Science Club of the University of Waterloo,
+	      and is licensed under the <a href="gpl.html">GNU
+		GPL</a>.</p>
+
+	    <h3>cygwinreg</h3>
+	    <p>On Windows, sometimes you just need the power
+	      of <a href="http://cygwin.com/">Cygwin</a>.  However,
+	      you may also need to read and write from the Registry.
+	      Python doesn't build the <tt>winreg</tt> module on
+	      Cygwin.  So I
+	      wrote <a href="http://pypi.python.org/pypi/cygwinreg">cygwinreg</a>
+	      to do replace it.</p>
+
+	    <p>This program is Copyright &#169; 2009 by Akoha and is
+	      licensed under
+	      the <a href="http://www.opensource.org/licenses/PythonSoftFoundation.php">Python
+		Software Foundation License</a>.</p>
+
+	    <h3>finger-ldap</h3>
+	    <p>The Computer Science Club has been using an
+	      <a href="http://www.openldap.org">LDAP user
+		database</a> for a while now, and I noticed
+	      that <tt>finger</tt>ing a user was really slow.  So I
+	      looked at the code, and apparently, BSD finger uses
+	      NSS to get the entire user directory, and then
+	      searches through that.</p>
+
+	    <p>That's horribly inefficient when you've got a huge
+	      user database.  And LDAP provides a perfectly
+	      good <a href="http://www.faqs.org/rfcs/rfc2254.html">method
+		of searching it</a>.
+	      So <a href="programs/finger-ldap-1.3.tar.bz2">finger-ldap</a>
+	      (1.3) is designed to resolve the username using LDAP,
+	      and then pass it down to the system's finger which
+	      does the formatting of the user information.  Now it's
+	      nice and fast.</p>
+
+	    <p>This program is licensed under the
+	      <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>http-servers</h3>
+	    <p>So I needed to write a quick program that snarfed up
+	      the <tt>Server:</tt> banners from a mass bunch of HTTP
+	      servers.  Since I had just gone
+	      to <a href="http://www.yetanother.org/damian/">Damian
+		Conway's</a> <a href="http://www.perl.com/">Perl</a>
+	      talks at <a href="../debconf2/">Debconf 2</a>, I
+	      decided to write a
+	      small <a href="programs/http-servers">script</a>.
+	      Unfortunately, Damian corrupted me and the result
+	      was <a href="programs/http-servers-obf">this
+		monstrosity</a>.  I call it &quot;job security in 101
+	      characters.&quot;</p>
+
+	    <p>Recently, I've realised that I can shave off another
+	      two characters.  Can you
+	      spot <a href="programs/http-servers-obf2">the
+		difference</a>?</p>
+
+	    <p>This program is licensed under the
+	      <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>orkut2dot</h3>
+	    <p>In March 2004, I decided to graph my network of
+	      friends on <a href="http://www.orkut.com">Orkut</a>.
+	      In the process, I wrote a
+	      small <a href="orkut/Makefile">Makefile</a> and a Perl
+	      programme
+	      called <a href="orkut/orkut2dot">orkut2dot</a> which
+	      screen-scrapes the site in order to gather data.</p>
+
+	    <p>You should look at the <a href="orkut/">graphs</a> I
+	      generated.</p>
+
+	    <p>This program is licensed under the
+	      <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>pbox-tex</h3>
+	    <p>This is a
+	      L<sup><small>A</small></sup>T<small>E</small>X package
+	      that provides a variable-width <code>\parbox</code>
+	      command.
+	      Get <a href="programs/pbox-tex_1.0.tar.gz">pbox
+		version 1.0</a>.</p>
+
+	    <p>This program is licensed under the
+	      <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>resume-sfllaw</h3>
+	    <p>I decided to do my r&eacute;sum&eacute; as a
+	      L<sup><small>A</small></sup>T<small>E</small>X document.
+	      It gets converted to DVI, PDF, PostScript and XHTML by
+	      means of
+	      <small>PDF</small>T<small>E</small>X,
+	      <a href="http://www.ghostscript.com/doc/gnu/">GhostScript</a>
+	      and
+	      <a href="http://www.cis.ohio-state.edu/~gurari/TeX4ht/mn.html">T<small>E</small>X4ht</a>.
+	      It comes in two
+	      documents:
+	      <a href="narcissism/resume-sfllaw.tex">resume-sfllaw.tex</a>
+	      which is the required source file and the
+	      recommended <a href="narcissism/Makefile">Makefile</a>.</p>
+
+	    <p>I used to use a <em>very</em>
+	      primitive <a href="programs/gen-resume">parser</a> that
+	      I wrote in Perl.  It took the T<small>E</small>X and
+	      turned it into XHTML.  I didn't
+	      use <a href="http://www.latex2html.org/">L<sup><small>A</small></sup>T<small>E</small>X2<small>HTML</small></a>
+	      because it didn't want to munge my document correctly.
+	      However, this program is deprecated and should no longer
+	      be used.</p>
+
+	    <p>Oh yeah.  Maybe you want to read
+	      my <a href="narcissism/">r&eacute;sum&eacute;</a>.</p>
+
+	    <p>This program is licensed under the
+	      <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h3>uw-wkrpt</h3>
+	    <p class="noindent">If you are
+	      a <a href="http://www.uwaterloo.ca/">University of
+		Waterloo</a> <a href="http://www.cecs.uwaterloo.ca/">co-operative
+		education</a> student, have I got news for you!  If you
+	      can
+	      use <a href="http://www.latex-project.org/">L<sup><small>A</small></sup>T<small>E</small>X</a>
+	      or have the gumption to learn, that's even better.  I've
+	      written a document class
+	      called <a href="programs/uw-wkrpt/">uw-wkrpt</a> that
+	      knows about the work term report guidelines for several
+	      programs and can format your report to follow them.</p>
+
+	    <p>You may remember that this program used to be
+	      called <a href="programs/uw-wkrpt/">uw-ece-workreport</a>.
+	      As of version 2.0, it supports more than
+	      just <a href="http://www.ece.uwaterloo.ca/">Electrical
+		or Computer Engineering</a> reports, and so the name no
+	      longer fits.</p>
+
+	    <p>This program is licensed under
+	      the <a href="gpl.html">GNU GPL</a>.</p>
+
+	    <h1>Packages I maintain</h1>
+	    <p>I've started getting seriously involved
+	      in <a href="http://www.gnu.org/">Free Software</a>,
+	      specifically with the
+	      <a href="http://www.debian.org/">Debian Project</a>.  I'm
+	      a Debian Developer, and have packaged up some stuff.</p>
+
+	    <p>Currently, I officially maintain:</p>
+	    <ul>
+	      <li><a href="http://packages.qa.debian.org/apt-rdepends">apt-rdepends</a></li>
+	      <li><a href="http://packages.qa.debian.org/rutebook">rutebook</a></li>
+	    </ul>
+
+	    <p>I used to maintain:</p>
+	    <ul>
+	      <li><a href="http://packages.qa.debian.org/circ-tex">circ-tex</a></li>
+	      <li><a href="http://packages.qa.debian.org/fragroute">fragroute</a></li>
+	      <li><a href="http://packages.qa.debian.org/fragrouter">fragrouter</a></li>
+	      <li><a href="http://packages.qa.debian.org/kernel-patch-2.4-lowlatency">kernel-patch-2.4-lowlatency</a></li>
+	      <li><a href="http://packages.qa.debian.org/libdscaler">libdscaler</a></li>
+	      <li><a href="http://packages.qa.debian.org/libdumbnet">libdumbnet</a></li>
+	      <li><a href="http://packages.qa.debian.org/libevent">libevent</a></li>
+	      <li><a href="http://packages.qa.debian.org/pbox-tex">pbox-tex</a></li>
+	      <li><a href="http://packages.qa.debian.org/ssldump">ssldump</a></li>
+	      <li><a href="http://packages.qa.debian.org/tvtime">tvtime</a></li>
+	      <li><a href="http://packages.qa.debian.org/wmmon">wmmon</a></li>
+	      <li><a href="http://packages.qa.debian.org/wmtime">wmtime</a></li>
+	    </ul>
+	    <!-- Column 1 end -->
+	  </div>
+
+	  <!-- this is the left column in the 3-col layout. It
+	       contains navigation links -->
+
+	  <div class="col2">
+	    <!-- -- navigation links on the side ---->
+	    <p>Simon Law's website:</p>
+	    <p><a href="index.html">Home</a></p>
+	    <p><a href="about.html">About Me</a></p>
+	    <p><a href="photography.html">Photography</a></p>
+	    <p><a href="food.html">Food</a></p>
+	    <p><a href="events.html">Events</a></p>
+	    <p><a href="freesoftware.html">Free software</a></p>
+	    <p><a href="montreal.html">Montreal</a></p>
+	    <p><a href="kitty.html">Kitty!</a></p>
+	    <p><a href="contactme.html">Contact me</a></p>
+	  </div>
+
+	  <!--- render column 3 on the right side, with the links inside -->
+	  <!-- this renders the links in the sidebar on the side -->
+	  <div class="col3">
+	    <!-- Column 3 start -->
+	    <!-- this is what extracts and prints the links -->
+	    <!-- Column 3 end -->
+	  </div>
+	</div>
+      </div>
+    </div>
+
+    <div class="colmask threecol">
+      <div class="colmid">
+	<div class="colleft">
+	  <div class="col1">
+	    <!-- Column 1 start -->
+	    <a href="index.html">Home</a>&nbsp;|&nbsp;
+	    <a href="about.html">About Me</a>&nbsp;|&nbsp;
+	    <a href="photography.html">Photography</a>&nbsp;|&nbsp;
+	    <a href="food.html">Food</a>&nbsp;|&nbsp;
+	    <a href="events.html">Events</a>&nbsp;|&nbsp;
+	    <a href="freesoftware.html">Free software</a>&nbsp;|&nbsp;
+	    <a href="montreal.html">Montreal</a>&nbsp;|&nbsp;
+	    <a href="kitty.html">Kitty!</a>&nbsp;|&nbsp;
+	    <a href="contactme.html">Contact me</a>
+	    <!-- Column 1 end -->
+	  </div>
+	  <div class="col2">
+	    <!-- Column 2 start -->
+	    <!-- Column 2 end -->
+	  </div>
+	  <div class="col3">
+	    <!-- Column 3 start -->
+	    <!-- nothing goes in here for the title -->
+	    <!-- Column 3 end -->
+	  </div>
+	</div>
+      </div>
+    </div>
+  </body>
+</html>

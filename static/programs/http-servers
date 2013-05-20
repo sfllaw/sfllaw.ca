@@ -1,0 +1,37 @@
+#!/usr/bin/perl -w
+
+use LWP::Simple;
+use strict;
+
+foreach (@ARGV) {
+  if (not m#://#) { 
+    $_ = 'http://' . $_;
+  }
+  my @header = head $_ ;
+  print $_ , " " , ($header[4] ? $header[4] : "Unknown") , "\n";
+}
+
+__END__
+
+=head1 NAME
+
+http-servers -- Query the HTTPd running a webserver
+
+=head1 SUMMARY
+
+http-servers URL ...
+
+=head1 DESCRIPTION
+
+http-servers will query the list of URLs and return matched pairs of
+URL and the Server: result at that location.  If the server does not
+identify itself, we report it as "Unknown".
+
+=head1 ENVIRONMENT VARIABLES
+
+If you wish to use http-servers with a proxy server, set the http_proxy
+environment variable to 'http://[user:password@]url[:port]'
+
+=head1 AUTHOR
+
+Simon Law (sfllaw@engmail.uwaterloo.ca)

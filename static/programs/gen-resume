@@ -1,0 +1,176 @@
+#!/usr/bin/perl -w
+## This is gen-resume, the LaTeX to XHTML converter for resume-sfllaw.tex.
+## Copyright (C) 2002,2003  Simon Law
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 2 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+use strict;
+use warnings;
+
+my @footnotes;          # Holds footnotes for later on
+my $depth = 0;          # Holds the itemize depth
+my $item = 0;           # Says whether we are in a list of items or not.
+my $document = 0;       # We are still processing the preamble.
+
+# Print the header
+print <<EOH;
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>Simon Law's R&eacute;sum&eacute;</title>
+    <style type="text/css">
+      img { border : 0; }
+      span.name  { font-family: sans-serif;
+                   font-size: 175%;
+                   font-weight: bold; }
+      a.url      { font-family: monospace; }
+      td  { font-family: sans-serif;
+            font-style: italic; }
+      h1  { font-family: default;
+            font-size: 100%; 
+            font-weight: normal;
+            text-align: center; }
+      h2  { font-family: sans-serif;
+            font-size: 100%; }
+      h3  { font-style: italic;
+            font-weight: normal;
+            font-size: 100%; }
+    </style>
+  </head>
+  <body>
+EOH
+
+while (<>) {
+  if (!$document) {
+    if (m/\\begin{document}/) {
+      $document = 1;
+    }
+    next;
+  }
+
+  # Eliminate comments (but keep percentage signs)
+  s/([^\\%]?)%.*/$1/g;
+
+  # Let's get some TeX to XML character conversion stuff
+  s/\\#/#/g;
+  s/\\%/%/g;
+  s/\\&/&amp;/g;
+  s/\\'([aeiou])/&$1acute;/g;
+  s/---/&#8212;/g; # &mdash;
+  s/--/&#8211;/g;  # &ndash;
+  s/[`']{2}?/"/g;
+  s#\\LaTeX#L<sup><small>A</small></sup>T<small>E</small>X#g;
+  s#\\TeX#T<small>E</small>X#g;
+  s#\\\\#<br />#g;
+  s#\\hspace{.*?}#<br />\n#g;
+  s#\\hrulefill#<hr />\n#g;
+  s/([^\\]?)~/$1 /g;
+  s#\\Cpp({})?#C++#g;
+
+  # Convert URLs to hyperlinks
+  s#(\\url{.*?) #$1~#g; # Correct overzealous ~ gobbling
+  s#\\url{(.*?)}#<a class="url" href="$1">$1</a>#g;
+
+  # Convert italics properly
+  s#\\textit{(.*?)}#<i>$1</i>#g;
+
+  # Get my name displayed right
+  s#\\name{(.*?)}#<span class="name">$1</span><span>#g;
+
+  # Handle footnotes by cacheing them in @footnotes
+  if (m/\\footnote{(.*?)}/) {
+    push @footnotes, $1;
+    s#\\footnote{.*?}#"<sup><small>" . scalar @footnotes . "</small></sup>"#e;
+  }
+  
+  # Handle section titles
+  if (m/\\section{(.*)}/) {
+    print "<h2>$1</h2>\n";
+  }
+  # Handle item lists
+  elsif (m/\\item (.*)/) {
+    if ($item) {
+      print "</li>\n  <li>$1";
+    }
+    else {
+      print "  <li>$1";
+      $item = 1;
+    }
+  }
+  # Get left and right job titles set
+  elsif (m/\\position{(.*)}/) {
+    print "<table width='100%'><tr><td>$1</td>\n";
+  }
+  elsif (m/\\period{(.*)}/) {
+    print "<td align='right'>$1</td></tr></table>\n";
+  }
+  # Make blank lines truly blank.
+  elsif (m/^\s*$/) {
+    print "\n";
+  }
+  # Work out centering without the <center> tag
+  elsif (m/\\begin{centering}/) {
+    print "<h1>";
+  }
+  elsif (m/\\end{centering}/) {
+    print "</span></h1>";
+  }
+  # Print centerline stuff
+  elsif (m/\\centerline{(.*?)}/) {
+    print "<h1>$1</h1>\n";
+  }
+  # Are we in an itemize environment?
+  elsif (m/\\begin{itemize}/) {
+    $depth++;
+    print "<ul>\n";
+    $item = 0;
+  }
+  elsif (m/\\end{itemize}/) {
+    if ($depth) {
+      print "  </li>\n";
+    }
+    print "</ul>\n";
+  }
+  # Things to ignore:
+  elsif (m/\\setlength/ or m/\\clearpage/ or m/\\end/) {}
+  # Print everything else
+  else {
+    print;
+    $item = 0;
+  }
+
+}
+
+# Display those footnotes
+if (scalar @footnotes) {
+  print "<div><hr /></div>\n";
+  for (my $i = 1; $i <= scalar @footnotes; $i++) {
+	  print "<p><sup><small>$i</small></sup> $footnotes[$i-1]</p>\n";
+  }
+}
+
+# Print the footer
+print <<EOF;
+  <p>
+    <a href="http://validator.w3.org/check/referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml11"
+        alt="Valid XHTML 1.1!" height="31" width="88" /></a>
+  </p>
+  </body>
+</html>
+EOF
+

@@ -1,0 +1,771 @@
+\documentclass{article}
+
+\usepackage{amssymb}
+
+\title{Extreme Perl\\{\Large The horror of SELFGOL}}
+\author{Damian Conway \and Simon Law\\Summarizer}
+\date{5 June 2002}
+
+\begin{document}
+
+\maketitle
+
+\noindent Richard Dice introduced Damian Conway, from Monash University.
+Damian has been the recepient of Yet Another Society's Perl Development
+Grant since 2001.  Damian then admitted that he was running Mac OS X and
+had his presentation running on Microsoft PowerPoint, which let us get
+our boos and hisses out ahead of time.
+
+\section{Why I hate XP}
+Damian doesn't hate the idea of XP.  It's just a collection of proven
+software engineering techniques, which should definitely be advocated.
+The eXtreme Programming people have just dressed it up and made it
+cool and acceptable to practice.
+
+He doesn't hate the hype surrounding XP.  Anything that gets people to
+use software engineering techniques is fine by him.
+
+What he really hates is the \emph{name.}  Exterme Programming isn't
+extreme at all.  The tenants are sayings like: 
+``never code alone,'' and ``always test everything.''  It's
+\emph{ultra-conservative} programming, so he feels like he's in a Paul Hogan
+movie.
+
+\section{Remember Mel?}
+c.f. Mel, a Real Programmer, from the Jargon File.  Programs should be
+able to rewrite themselves, and optimise themselves.  The author of
+Mel's story was reading Mel's Blackjack program and found a
+loop with no test, yet the loop exited anyway.  Each loop would
+increment it's instruction address, so that the data finished at the
+last member address.  He exploited a carry, so that the next instruction
+after \texttt{FETCH} was \texttt{JUMP}.  So that it would jump to the 
+next instruction (at address zero.)  That's extreme programming!
+
+\section{Remember Johann Sebastian Bach}
+Damian likes Bach's \emph{Well-tempered Clavier} which is a classic fugue with
+interwoven themes and subtle modulations of the melody.   It evolves and
+builds over itself, being self-referential, almost fractal-like in
+nature.
+
+\section{SelfGOL}
+\begin{figure}
+\caption{SelfGOL source code}\label{fig:selfgol}
+\begin{verbatim}
+#!/usr/bin/perl -s
+$;=$/;seek+DATA,undef$/,!$s;$_=<DATA>;$s&&print||(*{q;::\;
+;}=sub{$d=$d-1?$d:$0;s;';\t#$d#;,$_})&&$g&&do{$y=($x||=20)*($y||8);sub
+i{sleep&f}sub'p{print$;x$=,join$;,$b=~/.{$x}/g,$;}sub'f{pop||1}sub'n{substr($b,
+&f%$y,3)=~tr,O,O,}sub'g{@_[~~@_]=@_;--($f=&f);$m=substr($b,&f,1);($w,$w,$m,O)
+[n($f-$x)+n($x+$f)-(${m}eq+O=>)+n$f]||$w}$w="\40";$b=join'',@ARGV?<>:$_,$w
+x$y;$b=~s).)$&=~/\w/?O:$w)gse;substr($b,$y)=q++;$g='$i=0;$i?$b:$c=$b;
+substr+$c,$i,1,g$i;$g=~s?\d+?($&+1)%$y?e;$i-$y+1?eval$g:do{$b=$c;p;i}';
+sub'e{eval$g;&e};e}||eval||die+No.$;
+__DATA__
+$d&&do{{$^W=$|;*_=sub{$=+s=#([A-z])(.*)#=#$+$1#=g}}
+@s=(q[$_=sprintf+pop@s,@s],";\n"->($_=q[
+$d&&do{{$^W=$|;*_=sub{$=+s=#([A-z])(.*)#=#$+$1#=g}}'
+@s=(q[%s],q[%s])x2;%s;print"\n"x&_,$_;i;eval};
+]))x2;$_=sprintf+pop@s,@s;print"\n"x&_,$_;i;eval};$/=$y;$"=",";print
+q<#!/usr/bin/perl -sw
+!$s?{do{>.($_=<>).q<}:do{@s=(q[printf+pop@s,@s],q[#!/usr/bin/perl -sw
+!$s?{do{>.(s$%$%%$g,y=[====y=]==||&d,$_).q<}:do{@s=(q[%s],q[%s])x2;%s}
+])x2;printf+pop@s,@s}
+>
+\end{verbatim}
+\end{figure}
+Damian's pseudo-entry in the 2000/2001 obfuscated Perl contest and is
+reproduced in Figure \ref{fig:selfgol}.  It was
+rejected by the judges because it's too scary.  It's a self-aware viral quine.
+
+It can:
+\begin{itemize}
+\item self-replicate
+\item rewrite other Perl programs to allow them to self-replicate
+\item detects un-rewritable Perl programs
+\item execute itself or other Perl programs as cellular automata of
+arbitrary size (to play Conway's "Game of Life")
+\item animate any short text as a cycling marquee banner
+\end{itemize}
+
+Why this functionality?  This program was designed to compete in all
+four categories in the 2000/2001 contest unlike
+the other entries which merely targetted a single category.
+
+It's under 1000 bytes of standard Perl and uses no modules.
+Plus, it doesn't have \texttt{if}, \texttt{unless}, \texttt{while},
+\texttt{until}, \texttt{for}, \texttt{foreach}, \texttt{goto},
+\texttt{next}, \texttt{last},
+\texttt{redo}, \texttt{map}
+or \texttt{grep} instructions because control structures are for wussies.
+
+To achieve this, it relies on some very extreme programming techniques.  It
+visits many of the obscure backwaters of the Perl syntax.  It is
+everything you never want to know about Perl and should be afraid to
+ask.
+
+\section{Breakin' it on down}
+The first step is to reformat the code legibly.  This is easier by using
+the \emph{perltidy} program.  SelfGOL ceases to work after pretty printing,
+because SelfGOL relies on its own structure.  Damian's first rule 
+in obfuscating any program is to make things more difficult for computer
+tools to simplify.
+
+\section{Start simply}
+\begin{verbatim}
+#!/usr/bin/perl -s
+\end{verbatim}
+The -s option allows people to pass options to Perl without using a
+Getopt module.
+
+\section{Playing with punctuation vars}
+Another great way to obfuscate a program is to not use variables with
+names; use variables as punctuation
+characters.  
+\begin{verbatim}
+$; = $/;
+\end{verbatim}Sets the variables \verb"$;" to
+\verb"\n"
+The newline is the default value of \verb"$/", which is the input
+record separator.
+\verb"$;" is usually the hash key separator.
+If we write 
+\verb"$hash{'x','y'} = $val;" this really means 
+\verb"$hash{join($;, $a, $b, $c)}"
+This was the ancient method of doing multi-level indexing, and it makes
+things very obfuscated, so it looks like you're doing slices.  For
+example:
+\begin{verbatim}
+$table{$x,$y,$z}=$val;
+\end{verbatim}
+
+\section{Seek and yea shall obscure}
+\begin{verbatim}
+seek +DATA, undef $/, !$s;
+\end{verbatim}
+To begin, we are seeking the DATA stream.  We are sucking the data out
+of half the data.  In Perl, unary \verb"+" is a no-op.  In obfuscation, 
+whitespace is your enemy.
+
+Normally, this stream opened to the source file and pre-positioned at
+the first character after \verb"__DATA__", so you can seek this
+line anywhere, even to the top of the source code.  The next rule in
+obfuscation, we do things that the judges know to be impossible.
+\verb"undef $/" clears the input record separator, 
+so the next read will read the entire file.
+Now, the second argument to \verb"seek" will be converted to zero, 
+because \verb"undef" returns undef.  The
+third argument tells us what the \verb"seek" will be relative to.  The
+\verb"$s" variable will be true (1) if SelfGOL was called with -s on
+the command line.  Because of the -s flag to \verb"#!/usr/bin/perl", 
+\verb"!$s"
+will be an empty string, if -s on command line; otherwise \verb"!$s"
+will be equal to 1.  So \verb"seek +DATA, 0, 0" will read 
+from the start of the file  when the -s argument is passed.  Otherwise, seek
+will go to exactly where we are now, and do a no-op.
+
+\section{Load that data}
+\begin{verbatim}
+$_ = <DATA>;
+\end{verbatim}
+So we have read in the entire file if -s is on the command line.  
+Otherwise, we will read the rest of the data.
+
+\section{Instant self-replication}
+\begin{verbatim}
+$s && print
+\end{verbatim}
+This will let us print the entire source code.  Some
+people say ``That's cheating'' so Damian can print out its own source
+code four other times.  The rest of the program is a boolean expression, so
+short-circuit evaluation ignores the rest of the program.  This is how
+normal control structures are avoided.
+
+\section{Playing the game}
+This section is so scary, it does nasty things with typeglobs.  So we
+will skip over the typeglob.
+\begin{verbatim}
+|| (*{ . . . }) && $g && do {
+\end{verbatim}
+
+After the typeglob section, the program checks the \verb"$g" variable
+for the command line argument.  If this is true, we're going to play the
+Game of Life.
+
+\section{Look over there!}
+\begin{verbatim}
+(*{q;:: . . . })
+\end{verbatim}
+This has nothing to do with the game of life, it's here just to confuse
+things further.  Obfuscate by making the logical flow of the program
+jump all over the place.
+
+\section{Sizing things up}
+\begin{verbatim}
+$y = ($x ||= 20 ) * ( $y || 8 );
+\end{verbatim}
+With this command, we can give a reasonable default for \verb"$x", if
+it hasn't already been
+specified.  The \verb"$y" variable, contrary to its name, does not
+store the y-dimension of the board, which
+is why it hasn't got the assignment option.  \verb"$y" stores the total size
+of the board.  The reason this is done is so that we can
+represent the two-dimensional board with a one-dimensional string.
+Damian's implementation treats this two dimensional board as a torus,
+which means the top wraps around to the bottom, and the left side wraps
+around to the right.
+
+\section{Perchance to dream}
+\begin{verbatim}
+sub i { sleep &f; }
+\end{verbatim}
+Good coding pratice says that we should factor out stuff we need to repeat, 
+so we name an \underline{i}nterval subroutine.
+We sleep for an interval as a function \verb"&f" which means we call
+subroutine \verb"f", for first argument, with
+the current \verb"@_".  This way, we avoid using the verbose construct:
+\verb"$_[0]"
+
+\section{A short argument}
+\begin{verbatim}
+sub'f { pop || 1 }
+\end{verbatim}
+Perl 4 used the apostrophe (\verb"'") as a package separator.  This
+fools syntax highlighting into
+thinking that the rest of the program is one big string.  \verb"pop" takes the last
+argument, because the subroutine stands for \underline{f}irst, off the argument 
+list, and if no arguments are passed, we use 1 as a default.
+
+\section{All a board}
+\begin{verbatim}
+sub'p { print $; x $=, join $;, $b =~ /.{$x}/g, $; }
+\end{verbatim}
+So the first thing to \underline{p}rint the board is to \mbox{\texttt{print \$; x
+\$=}}.  The screen is ``cleared'' by repeating a
+newline character using the \texttt{x} operator by \texttt{\$=} (which is 
+the number lines in a page, normally sixty.)  Then, we have to break up
+board (\texttt{\$b})
+variable and match it against any \texttt{\$x} characters at a time, and
+\texttt{print}
+them.  Lastly, we \texttt{join} each row on the board together with 
+newlines at the right places, to make sure the board prints nicely.
+
+\section{Count on your neighbours}
+\begin{verbatim}
+sub n { substr( $b, &f % $y, 3 ) =~ tr,O,O, }
+\end{verbatim}
+We need a subroutine to count the \underline{n}umber of neighbours.  
+\mbox{\texttt{\&f \% \$y}}
+which will wrap around to fill up the board, if necessary.  
+Then we take a \texttt{substr} of three
+characters, and do a \texttt{tr} on them.  Why do we not use a
+\texttt{y} instead of a
+\texttt{tr}, because he uses it later.  The code also uses the letter
+`O' instead of the numeral `0' to confuse people
+because Perl recognises `O' as true and `0' as false.  If we do a 
+transliteration, it's a no-op, but it does returns the number of times 
+it did the transliteration.  This means it can be used to count the number 
+of `O's on the board.
+
+\section{Cell replication}
+\begin{verbatim}
+sub'g {
+  @_[~~@_]=@_;
+  --($f=&f);
+  $m=substr($b,&f,1);
+  ($w,$w,$m,O) [
+     n($f-$x)
+    +n($x+$f)
+    -(${m}eq+O=>)
+    +n$f
+  ]
+  || $w
+}
+\end{verbatim}
+This snippet of code does the calculation for the next \underline{g}eneration 
+of the current middle cell.
+
+\begin{verbatim}
+sub'g { @_[~~@_] = @_;
+\end{verbatim}
+We take the length of \texttt{@\_} by using the \texttt{\~{}\~} operator.  
+If we take the bitwise complement, it puts the argument into a scalar 
+context.  So doubling the bitwise complement is a cheap way of calling
+\texttt{scalar}.  
+\begin{verbatim}
+@_[~~@_] = @_
+\end{verbatim}
+Here we use an array slice.  This will give the first element that
+doesn't exist in this array, and assign it the whole parameter list.
+That way, we duplicate the zeroth argument into the first argument slot.  Why
+would we duplicate \texttt{\$\_[0]}?  This will be explained later.
+
+Next, we get the first argument out, \mbox{\texttt{--( \$f = \&f );}}  
+This gets the middle cell, from the $3 \times 3$ square we are examining.  
+So, let us get the first argument, cache it, and then do a predecrement.
+
+\begin{verbatim}
+$m = substr( $b, &f, 1 );
+\end{verbatim}
+So we have remember the \underline{m}iddle argument.  We have a
+\texttt{\&f},
+which is why we needed to duplicate \texttt{\$\_[0]}, because the
+previous \texttt{\&f} popped off the value.
+
+\begin{verbatim}
+n($f-$x)+n($x+$f)-(${m}eq+O=>
+\end{verbatim}
+The next thing we do is to start counting.  So we go back \texttt{\$x}
+characters and forward \texttt{\$x} characters, so that we get the line
+above and the line below.  We grab the \underline{n}umber of `O's around 
+the neighbours.  We
+must then subtract the count of myself.  \texttt{=>} is the fat comma, which we
+put a fat-comma at the end of a list, which stringified the `O' before it.
+The \texttt{+} both gives us needed spacing, and the second thing it
+does is makes the symbol ``The Artist Formerly Known as Prince.''
+
+We use this as an index to \mbox{\texttt{( \$w, \$w, \$m, O )}} which 
+exploits a table.  If
+it is zero or one, it will be a whitespace.  If it is a two, I will use
+my own value.  If it is a three, a bareword of capitals does not need to
+be capitalised and is still an `O'.  If it is greater than three, the
+\verb-|| $w- fires, which gives us whitespace.
+
+\section{Less space}
+Let us start initialising the variables we used above.  We assign
+\verb'$w = "\40";' which is an ASCII space.
+
+\section{It's a set-up}
+\begin{verbatim}
+$b = join '', @ARGV ? <> : $_, $w x $y;
+\end{verbatim}
+
+This loads up the board.  We load from a file if specified on the
+command file.  If \verb"@ARGV" is empty, it will evaluate to 0, which
+makes the program grab the data in the input buffer (\verb"__DATA__").
+Otherwise, we get the first argument from \verb"@ARGV" and reads the
+whole file in.  Either way, append \verb"$y" extra spaces so the board
+is guaranteed to be filled.  This is because extreme programmers never
+trust input data.
+
+\section{Abnormalization}
+\begin{verbatim}
+$b =~ s).) $& =~ /\w/ ? O : $w )gse;
+\end{verbatim}
+
+We can't trust the characters that you've given me.  I only work with
+spaces and `O's, so we need to normalise.  We do this by substituting
+every character globally, with s flag set so we match with newlines, and
+evaluate it as the result as an expression (e flag)
+
+We use the close parenthesis as substitution characters to destroy vi
+parenthesis matching.  We take advantage of the fact is that the regular
+expression engine is not re-entrant, by calling the regular expression
+engine within the regular expression engine!\footnote{Yes, that is not a
+typographical error.}  We will match against the
+matched pattern \verb"$&".  So we translate all word (\verb"\w") characters
+to 'O', with everything else turning into a space.
+
+\section{A little off the back, please} 
+\begin{verbatim}
+substr( $b, $y ) = q++;
+\end{verbatim}
+We must trim the string we've
+got to the board size.  So, take a \verb"substr" of the board using the two
+argument form of \verb"substr".  We get the substring of the board
+(\verb"$b") from the character I
+don't want (\verb"$y") to the last character in the board.  
+We use \verb"q++" as \verb"''" (an empty string.)  This way, we crop the 
+size of the board.
+
+\section{How to play}
+\begin{verbatim}
+$g = '. . .';
+\end{verbatim}
+The \verb"$g" variable stores the actual ``Game of Life'' code as a string.
+
+\section{Counting from zero}
+\begin{verbatim}
+$i=0;
+\end{verbatim}
+We start from the first position on the board.
+
+\section{Clone first, make modifications later}
+\begin{verbatim}
+$i ? $b : $c = $b
+\end{verbatim}
+We need to make a clone, only from the very start.  This is a computed
+assignment, so the code is actually \verb"($i ? $b : $c) = $b;"  The
+\verb"$c" variable hold the clone of the board we will actually update.
+This is because the game requires us to analyse the entire previous
+board, before generating the next board.  So we will cache the older
+board, which prevents us for clobbering useful information.
+
+\section{One step}
+\begin{verbatim}
+substr +$c, $i, 1, g $i;
+\end{verbatim}
+The fourth argument is the string to replace the substring with.  We
+take \verb"$i", which is the position where we actually are, and we put it in
+the cloned version of the board.
+
+\section{Counting from n+i}
+How do I get to the next cell if I can't have loops?  Well, let's just
+self-modify the source code.
+
+\begin{verbatim}
+$g =~ s?\d+? ($&+1)%$y ?e;
+\end{verbatim}
+Find the first occurance of \verb"\d+" (one or more digits in the
+\verb"$g" string.
+And I replace it with one more itself, modulo the size of the board.  I
+take the \verb"$g" string that I am currently executing to get to the next
+position.  Using the ? delimiters causing the pattern to match on the
+first loop, but never again.  However, for a substitution it does
+nothing at all.
+
+Damian tells us a story of one of his SelfGOL talks.  In the audience
+was Jeff Pinyin, who was writing a book on Perl regular expressions.
+When Damian asked about this particular detail, he said that the substitution
+matches only once.  After being corrected, Jeff was heard to
+mutter ``Gotta change the book, then.''
+
+\section{Do that to me n-1 more times}
+\begin{verbatim}
+$i - $y + 1 ? eval $g : do{ $b = $c; p; i };
+\end{verbatim}
+
+I will modify the string, and then eval, then modify, then eval, then
+modify, then eval; until we finish are done with the size of the board.  
+Once I get to the end of the board, 
+I will copy the \underline{c}lone to the board, \underline{p}rint the board 
+and then sleep for an \underline{i}nterval.
+
+\section{Call yourself an eval?}
+\begin{verbatim}
+sub'e { eval $g; &e }
+\end{verbatim}
+This will call ourself over and over again, \underline{e}valuating as we
+go, until we run out of stack
+space.  So that we can run the game in an very short infinite loop.
+
+\section{Call yourself an eval!}
+Now we have to run the game of life.  Like this: '\verb"e"'
+
+\section{Looking elsewhere}
+\begin{verbatim}
+|| eval
+\end{verbatim}
+We are not going to use the Dynaload module, because they are cheating
+and we are not supposed to use modules.  So we will \verb"eval $_" instead.  
+
+\section{Admitting defeat}
+In order to report the error if that doesn't work, we catch the
+exception thrown by eval, and use:
+\begin{verbatim}
+|| die +No . $;
+\end{verbatim}
+
+\section{Elsewhere}
+This is where things start getting tricky.
+\begin{verbatim}
+__DATA__
+\end{verbatim}
+The rest of the program is loaded from the data section.
+
+\section{Marquee de Sade}
+\begin{verbatim}
+$d && do { {
+\end{verbatim}
+We will display the banner from here on in.
+
+\section{I don't want to hear it}
+\begin{verbatim}
+$^W = $|;
+\end{verbatim}
+We will turn off the warnings, because we want to do some hairy stuff.
+So we set it to false; because \verb"$|" (autoflush) is defaulted to undef.
+
+\section{A sub called underscore}
+\begin{verbatim}
+*_ = sub { $= + s= + s=#([A-z])(.*)#=#$+$1#=g } }
+\end{verbatim}
+
+We declare an entire subroutine declared entirely as underscore.  This
+is why we had to turn the warnings off.  We want to assign the nameless
+subroutine to the symbol \verb"_", so that the \verb"_" function is just that.
+
+This is the subroutine that does the banners.  It finds instances of
+letters and underscores between two \verb"#"s.  Notice, we are going to
+go from \verb"[A-z]"
+which contains \textsf{A-Z}, \textsf[, $\mathsf\backslash$, \textsf],
+\textsf\^, \textsf\_, $\mathsf{^{\backprime}}$ and \textsf{a-z}.
+
+We substitute using the = sign as delimiters.  We substitute with the
+last thing that matched (\verb"$+") which means the match of (\verb".*")  
+What we do
+is rotate the entire string one character around.  The result of this,
+which is the number of characters which adds it to the number of lines
+in a page (\verb"$=") which is a really big number.
+
+\section{Fugue for four strings}
+\begin{verbatim}
+@s = ( . . . )x2
+\end{verbatim}
+We take the four strings, and replicate them twice.
+
+\section{First movement}
+\begin{verbatim}
+q[$_=sprintf+pop@s,@s],
+\end{verbatim}
+We use the last string as the template for the first three strings.
+Since the template has only three variables, it is portable if either
+three or four arguments are evlauted at \verb"@s".
+
+\section{The quote-despangled banner}
+We go back to the thing at the top of the program.
+\begin{verbatim}
+*{q;::\;
+;} = sub { 
+  $d = $d - 1 ? $d : $0; 
+  s;';\t#$d#;, 
+  $_ 
+}
+\end{verbatim}
+
+This creates a subroutine whose name is \verb";\n"  This is the line
+which breaks the pretty-printer.
+
+We need to locate where the message is on the command line.  Since the
+pattern of the string with no numbers in it evaluates to zero.  If there
+is something in there that isn't a 1, we will display the string,
+otherwise we use the program's name.  Why 1?  Because if -d does not
+have an argument, \verb"$d"'s value is 1.
+
+\begin{verbatim}
+s;';\t#$d#;, $_
+\end{verbatim}
+So we find the function, and substitute the banner inside the comment,
+and return \verb"$_".
+
+\section{Second movement}
+We call the function, \verb";\n" and we use \verb"->" to call the next
+string as the
+argument.  We replace the first instance of a single quote
+character with `\texttt{ \#}\emph{message}\texttt{\#}', and assign it to
+\verb"$_".  This makes the message a Perl comment.
+
+We also append a quote, to balance out the quotes at the beginning
+of the program.  We put in place holders, by using \verb"%s" as
+format-string placeholders
+in the sprintf above.  In the meantime, they obfuscate the code by
+looking like hashes.
+
+\section{Sprinting to the finish}
+\begin{verbatim}
+$_ = sprintf +pop @s, @s;
+\end{verbatim}
+Now we actually do the \verb"sprintf", which is where the magic happens.
+We take the last element as the template and slotting in the \verb"%s" recreates
+the entire \verb"__DATA__" code; so that the sprintf repeats the entire
+source file except for the comment, which has been rotated by one.
+
+\section{By any other name...}
+This type of expression was invented by Norman Quine, who was interested
+in linguistic quines.  These are statements that are only complete when
+quoted and prepended to themselves.
+
+For example:
+\begin{quote}
+added to itself yields a sentence
+\end{quote}
+
+Becomes:
+\begin{quote}
+``added to itself yields a sentence''
+added to itself yields a sentence
+\end{quote}
+
+A programmatic quine is a program that replicates itself which takes a
+partial copy of itself, and copies itself to form the original program.
+
+\section{Junk genes}
+Once you have that tiny self-replicating genome\ldots
+
+You can add arbitrary amounts of code, as long as it is added to the
+\verb"print" statement of the second string.  For example
+
+\noindent\begin{tabular}{ll}
+\multicolumn{1}{c}{Original} & \multicolumn{1}{c}{Self-replicating}\\
+\begin{minipage}[t]{1.75in}
+\begin{verbatim}
+#!/usr/bin/perl -w
+print "Hello world.";
+\end{verbatim}
+\end{minipage}
+&
+\begin{minipage}[t]{2in}
+\begin{verbatim}
+#!/usr/bin/perl -sw
+!$s?{do{#!/usr/bin/perl -w
+print "Hello world.";
+}:do{@s=(q[printf+pop@s,@s],q[#!/usr/bin/perl -sw
+!$s?{do{#!/usr/bin/perl -w
+print "Hello world.";
+}:do{@s=(q[%s],q[%s])x2;%s}
+])x2;printf+pop@s,@s}
+\end{verbatim}
+\end{minipage}
+\end{tabular}
+
+\section{Evolution in action}
+Using \verb"printf" to print the board makes the replication a one-time 
+event.  We can change it to an
+\verb"sprintf" and capture the result, which allows it to continue
+printing after printing.
+
+\section{Waving the banner}
+When SelfGOL shifts the banner by one, we have to display it.
+\begin{verbatim}
+print "\n" x &_, $_;
+\end{verbatim}
+We clear the screen by using the \verb"x" operator against a big number, and
+then display the result of \verb"&_".
+
+\section{Go eval yourself!}
+Because we have the self-replicating quine in \verb"$_", we just call
+i;\verb"eval"
+which sleeps for one second and executes the contents of \verb"$_" by default.
+
+\section{Spreading the meme}
+The rest of the code in \verb"__DATA__" provides the viral self-replicator
+replicator.  This takes another program and allows it to print itself.
+It does this by treating the other program as junk genes in a Quine
+replicator.  This branch is only reached if not -s or -g or -d.
+
+\section{Opening the floodgates}
+\begin{verbatim}
+$/ = $y;
+\end{verbatim}
+We set the record separator (\verb"$/") to nothing so that we can read in 
+all the text using \verb"<>".
+
+\section{What this comma hath joined...}
+\begin{verbatim}
+$" = ",";
+\end{verbatim}
+We set this for later use.
+
+\section{Reboring the engine}
+\begin{verbatim}
+print q<#!/usr/bin/perl -sw
+\end{verbatim}
+To confer self-replication, we have to rewrite the other program's code.
+Notice how we are printing out a shebang line with the -s flag on the
+command line, and \emph{ensure we use warnings} as all good programmers
+should.
+
+\section{The non-viral bit}
+\begin{verbatim}
+!$s ? do {>
+. ( $_ = <> )
+\end{verbatim}
+We interpret their code, and then cache it away.
+
+\section{The virual bit}
+\begin{verbatim}
+. q<} : do {
+@s=( q[printf+pop@s,@s], q[#!/usr/bin/perl -sw
+!$s ? do {>
+\end{verbatim}
+So we setup this again, which does not have a copy \verb"!$s" which does not
+have a copy of the other program.
+
+\section{Coating the medicine}
+\begin{verbatim}
+.( s$%$%%$g,
+\end{verbatim}
+Damian is writing code that writes code which write code.  This way, we
+must prevent hashes from fouling up the \verb"sprintf" by fooling it
+into thinking they are format strings.
+
+If we find a single percent character, we will double it.  When
+\verb"sprintf" sees this, it substitutes collapses it into a single percent 
+character.
+
+\section{A fatal asymmetry}
+Now we get to why we do not use \verb"y" instead of \verb"tr" in the
+beginning of the pgrogram.  A certain class of
+programs cannot be made into quines.  If we interpolate with unbalanced
+square brackets, then it won't run properly.  So this is what this line
+does.
+
+\begin{verbatim}
+y=[====y=]== || &d
+\end{verbatim}
+So we count the number of opening square brackets and the closing square
+brackets.  If they are not equal, and we will die using \verb"&d" (die).
+There is no subroutine named d, that's why it dies.
+
+\section{One more time}
+Finally, we interpolate it.  In a scalar interpretation of a list, we
+interpolate the last element.
+
+\begin{verbatim}
+$_ )
+\end{verbatim}
+
+\section{Two more times}
+We run the rest of it.
+
+\section{What just happened}
+It reads in entire program to be modified.  Then it writes it back within 
+a \verb"!$s" guard. In the other branch, it writes a self-replicating Quine. 
+
+\section{So what have we learned?}
+
+\begin{itemize}
+\item Can (and should!) use any delimiters.  We have a world-wide shortage of
+forward slashes, so we use the other delimiters.
+
+\item Use the default arg (\verb"$_")
+
+\item Use operators to reduce keystroke count (e.g. of scalar)
+
+\item Use functions to reduce keystroke count (e.g. of \verb"$_[0]" and sleep)
+
+\item Punctuation variables are a rich source of useful default values
+
+\item And change the default behaviours of punctionate variables.
+
+\item And introduce job security, as obfuscated line-noise.
+
+\item Code can be data (e.g. initialisation of GOL)
+
+\item Data can be code
+(e.g. contents of \verb"$g" in GOL)
+
+\item Code can be interface
+(e.g. banner comment cycling)
+
+\item With boolean logic, we don't need selectors.
+
+\item With recursion, we don't need loops
+
+\item With eval, we don't even need recursion.
+
+\item Doesn't take much code to self-replicate.  We should program ``open
+source'' software which displays it's own source code to ensure source
+code is always available.
+
+\item Can then add extra ``genes'' to pass along useful behaviour.
+
+\item Can modify own genome to pass data between generations of a self-eval.
+So our code can adapt to new environments.
+
+\item If nothing else, take away this...\\
+However awful the code you have to maintain is, it could be much worse.
+It could be SelfGOL.
+\end{itemize}
+
+\end{document}
+% vim: set tw=72

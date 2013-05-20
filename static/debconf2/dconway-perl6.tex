@@ -1,0 +1,1010 @@
+\documentclass{article}
+
+\usepackage{url}
+\usepackage{alltt}
+\usepackage{graphics}
+
+\newenvironment{example}
+  {\addtolength{\linewidth}{-\parindent}%
+   \null\begin{minipage}{\linewidth}}
+  {\end{minipage}\addtolength{\linewidth}{\parindent}\null}
+
+\title{Perl 6: The sky \emph{isn't} falling}
+\author{Damian Conway \and Simon Law\\Summarizer}
+\date{11 June 2002}
+
+\begin{document}
+
+\maketitle
+
+\noindent This is the third in a series of talks by Damian Conway.  This
+one was held at the IBM Toronto Lab, in Markham, Ontario, Canada.  The
+contents of this summary are all Damian's, and I only a poor typist who
+scrambled to summarise his speech.  Any errors, though, are my own.
+
+Last week, Damian got fired from Yet Another Society, who had funded him
+for the last 18 months to work on Perl; since they don't have too much
+money anymore.  So you should really donate to YAS so that they can keep
+on paying brilliant people like Larry Wall to work on Perl 6.  The Perl
+6 project is the effort to fix all the things that went wrong with
+previous incarnations.  They have taken a broken language, and have made
+it better than before.
+
+\section{Welcome to Armageddon}
+Not everyone is thrilled by the process of changing Perl; in fact, it
+has made some people slightly unhappy.  There have been dire predictions
+of doom after each of Larry Wall's Apocalypses.\footnote{These can be
+found at \url{http://dev.perl.org/perl6/apocalypse/}}  Larry writes
+Apocalypse design papers to describe what he will do to Perl, and Damian
+comes behind him and releases Exegesis\footnote{These can also be found
+at \url{http://dev.perl.org/perl6/exegesis/}} to explain what Larry has
+just said.  There will be massive changes, strange new features, and
+unrecognisable code in the new Perl; but it is not the end of Perl as we
+know it.
+
+\section{Evolution in action}
+Yes, there \emph{are} major new features.  Yes, some of the fundamental
+syntax of the language will change; because Perl programmers are humble
+enough to correct their mistakes.  And some of them are really big
+mistakes.
+
+\section{Why Perl 6}
+Perl 5 is in widespread use, more widespread than most people would like
+to admit.  Damian goes to big companies and does talks on Perl, and he
+mentions that it would be really useful for the Perl movement if the
+company said that they use Perl.  ``No,'' they say, ``we can't do that
+because it's our strategic advantage.''  Of course, all of them are in
+denial of the fact that all their competitors also use Perl.
+
+\begin{quote}
+``That which does not kill you, makes you stronger.''\\
+\null\hfill-- Friedrich Nietzche
+\end{quote}
+Some things in Perl 5 were just plain wrong, and some of
+those things can really kill you if you have to work around them.
+So, Perl 6 is a chance to redesign and put things right.
+
+\begin{quote}
+``It is a truth universally acknowledged, that a popular language in
+possession of a large syntax must be in want of a rewrite.''\\
+\null\hfill-- Jane Austen\\
+\null\hfill(modulo Piers Cawley)
+\end{quote}
+Perl is groaning under the weight of its
+own syntax, and its own implementation.  They Perl team
+had trouble finding people
+who were smart enough to change the implementation of Perl without
+breaking things, which is why Perl 5.8 took a long time to release.
+
+They wanted to start over again, with an entirely new implementation.  
+Go back to basics 
+and do things cleanly, by taking the lessons learnt from Perl 5.  For
+example, virtual machine research has developed quite a bit since
+Perl was first implemented.  Almost all virtual machines, such as the
+Java Virtual Machine, are stack based; which are very efficient for
+loops, but horribly inefficient if you need to get something deep into
+the stack.  So they want to use a new virtual machine which will
+register based.  That way, they can take advantage of
+existing literature on optimising register machines, because almost 
+every real CPU is register based.  They call this new virtual machine
+Parrot, which will be used Perl, Parrot, Ruby, Scheme and even BASIC.
+From early implementations, Parrot is very very fast.
+
+\begin{quote}
+``If you're not busy being born, you're busy dying.''\\
+\null\hfill-- Bob Dylan
+\end{quote}
+Perl is in decline.  There were no more challenges in Perl 5, and they
+couldn't fit anything into it anymore.  There were no more hurdles, 
+and they had optimised
+it as well as they could.  So, in Perl 6, they will jettison the one thing
+you never jettison.  They will break backwards compatibilty, and risk
+their entire user base.  That's why
+Damian is here; to convince us to port our code to Perl 6.
+
+\section{The real deal}
+Let's see what programming in Perl 6 will actually be like.  Damian
+believes in eating his own dog food.  How could he convince people to
+use Perl 6, if he didn't use it himself.  So he will port 5 programs by
+Nathan Torkington, Hugo van der Sanden, Dan Sugalski, Simon Cozens and
+Damian Conway, and show us the results.  He will port those real world,
+everyday, Perl 5 programs and turn them into Perl 6.  What will it take
+to rewrite them in Perl 6?  Not much.  First he will do a minimal delta
+port from Perl 5 to Perl 6, using as few character changes as possible:
+a literal translation.  Then he will do an idiomatic port, using the
+new features of Perl 6 to make it better, more efficient, and more
+maintainable.
+
+\section{Open the pod bay door, Dan}
+We will start gently.  Sometimes a Perl 5 program is already a Perl 6
+program.  He shows us a handly little program written by Dan Sugalski,
+which is a
+typical text-munging Perl application.  It is a program that converts
+from Emacs outline mode to POD (Plain Old Documentation).
+
+\begin{example}
+This is an example of Emacs outline mode:
+\begin{verbatim}
+* A heading
+** A subheading
+*** A bulleted point
+        open 0 && print <0>;
+        some("indented text - not to be formatted");
+Some unindented text that I<is> formatted.
+
+\end{verbatim}
+\end{example}
+
+\begin{example}
+This is an example of POD:
+\begin{verbatim}
+=head1 A heading
+
+=head2 A subheading
+
+=over
+
+=item A bulleted point
+
+=item Another bulleted point
+
+=back
+
+Some text that I<is> formatted.
+
+\end{verbatim}
+\end{example}
+
+\begin{example}
+So, let's examine Dan's code:
+\begin{verbatim}
+my $section_type = 'text';
+
+sub start {
+  my ($type, $intro) = @_;
+  unless ($section_type eq $type) {
+    print $intro;
+    $section_type = $type;
+  }
+}
+
+loop: while(<>) {
+  print and next loop if /^\s*$/;
+
+  if (s/^[*]{3}\s+//) {
+    start('list', "\n=over\n");
+    print "\n=item $_\n";
+    next loop;
+  }
+  
+  start('text', "\n=back\n\n")
+    if $section_type eq 'list';
+
+  if (s/^([*]{1,2})\s+//) {
+    start('text', "\n");
+    print "=head", length($1), " $_\n";
+    next loop;
+  }
+  elsif (/^\s/) {
+    start('formatted', "\n");
+  }
+  else {
+    start('text', "\n");
+  }
+  print;
+}
+
+\end{verbatim}
+\end{example}
+
+What does it look like in Perl 6?  Exactly as above.  Except... there is
+a new first line: \verb"use re 'Perl 5';"  They changed the regular
+expressions of Perl 5 into better ones in Perl 6.  A lot of the
+behaviour is different, so this line tells Perl 6 to use the old regular
+expression engine.  If you've got one favourite Perl 5 regular
+expression, you can use the \verb':p5' modifier on a particular regexp
+in Perl 6, instead of using Perl 5 regexps globally.
+
+\let\rmdefaultold\rmdefault
+\renewcommand{\rmdefault}{pzc}
+\textrm{Verily, though, unto those newbred moungers weaned native 'pon Perl 6
+such antiquarian form shall liken to an ancient tongue.}
+\let\rmdefault\rmdefaultold
+\let\rmdefaultold\relax
+So here is how
+idiomatic Perl 6 expresses it:
+
+\begin{example}
+\begin{verbatim}
+my $section_type = 'text';
+
+sub start ($type, $intro) {
+  unless ($section_type eq $type) {
+    print $intro;
+    $section_type = $type;
+  }
+}
+
+loop: while <> {
+  given $_ {
+    when /^ \s* $/ { print; }
+
+    when s/^ \*<3> \s+ // {
+      start('list', "\n=pver\n");
+      print "\n=item $_\n";
+    }
+
+    start('text', "\n=back\n\n")
+      if $section_type eq 'list';
+
+    when s/^ ([*]<1,2>) \s+ // {
+      start('text', "\n");
+      print "=head", length($1), " $_\n";
+    }
+
+    when /^ \s/ {
+      start('formatted', "\n");
+      print;
+    }
+
+    default {
+      start('text', "\n");
+      print;
+    }
+  }
+}
+
+\end{verbatim}
+\end{example}
+
+The first change in Perl 6 is that you can give subroutines parameter
+lists.  These parameters are lexically scoped within the subroutine, and
+enforce type checking.
+
+The second change is the \verb'given' keyword.  \verb'given' is Perl's
+way of saying \verb'switch', and \verb'when' is equivalent to
+\verb'case'.  Why \verb'given'\ldots \verb'when'?  Because Larry is a
+linguist.  Of course, it would be silly to only allow integer
+comparisons in a \verb'given'\ldots\verb'when' statement, so it allows
+us to use all 35 comparisons available in Perl.  You can even put
+subroutines inside the comparitors, hashes, arrays, anything!  
+
+As the astute will notice, in the \verb'when' blocks, there are no fall
+throughs.  Now, some people will complain ``How do we do Duff's
+device?'' You can, but Damian doesn't want to admit it.  There is also
+an explicit \verb'default' statement, which does nothing but
+self-document the code.  That's because code that just appears inside a
+\verb'given' block will execute anyway.  So, Duff's device is actually
+easy in Perl 6.
+
+\section{The missing \texttt{ln}}
+What about systems programming?  Hugo van der Sanden does a lot of that.
+He maintains Perl 5, and will release 5.10.  We hope to release Perl 5
+maintainance releases for at least 5 year.  He has a useful program that
+works as a more powerful \verb'ln'.   Now \verb'ln' is the Unix command
+that creates symbolic links.  A symbolic link is a special file within
+the local directory structure that redirects to something else on the
+disk.
+
+Under Unix, these kinds of links are not easy to retarget.  The Perl
+distribution creates a large number of directories where certain things
+are stored.  In \verb'/usr/local/', you'd put symbolic links to the
+local directories.  When you install new software, you take all the
+symbolic links and make them point to something else.
+
+So here's a typical problem: 
+
+Given symbolic links \verb'lx', \verb'ly', and \verb'lz', which point 
+to \verb'/olddirx', \verb'/olddiry', \verb'/olddirz'; change them to
+point to \verb'/newdirx',
+\verb'/newdiry', \verb'/newdirz'.
+
+Under UNIX, you have to.
+\begin{enumerate}
+\item Mentally work out the name of new target file.
+\item Manually unlink the existing symbolic link, using \verb'rm'
+\item Create new symbolic link of same name, but connected to new target file.
+\end{enumerate}
+
+This makes retargetting multiple files very tedious.  Hugo wrote a Perl
+program called \verb'lnsub'.  This automates the process and looks like
+this:
+
+\clearpage
+\begin{example}
+\hspace{-10in}\mbox{H}
+\begin{verbatim}
+#! /usr/bin/perl -w
+use strict;
+my $from = shift;
+my $to   = shift;
+my($ffrom, $fto, $file);
+foreach $file ($SRGV) {
+  next unless -l $file;
+  $ffrom = readlink $file;
+  unless (defined $ffrom) {
+    warn "$file: $!\n";
+    next;
+  }
+  if (($fto = $ffrom) =~ s/$from/$to/) {
+    unlink $file;
+    if (symlink $fto, $file) {
+      print "$file: $ffrom -> $fto\n";
+    } else {
+      warn "Couldn't create link $file:",
+           " $ffrom -> $fto: $!\n"
+    }
+  }
+}
+
+\end{verbatim}
+\end{example}
+
+To use it type: 
+
+\verb'$ lnsub /usr/lib/beta/ /usr/lib/ship/ foo bar'
+
+\noindent
+which takes the links \verb'foo' and \verb'bar' and retargets them
+from the beta directory to the ship directory.
+
+Or you can use it to grab a large list of symbolic links 
+within a directory tree and retarget them all after an upgrade:
+
+\begin{verbatim}
+set $file = `find perl-stable`
+lnsub /perl-5.6.0/ /perl-5.6.1/ $file
+\end{verbatim}
+
+\clearpage
+\begin{example}
+This is how it looks after it has been ported to Perl 6:
+\begin{verbatim}
+#! /usr/bin/perl -w
+use strict;
+my $from = shift;
+my $to   = shift;
+my($ffrom, $fto, $file);
+for $ARGS -> $file {
+  next unless -l $file;
+  $ffrom = readlink $file;
+  unless (defined $ffrom) {
+    warn "$file: $!\n";
+    next;
+  }
+  if (($fto = $ffrom) =~ s/<$from>/$to/) {
+    unlink $file;
+    if (symlink $fto, $file) {
+      print "$file: $ffrom -> $fto\n";
+    } else {
+      warn "Couldn't create link $file:",
+           " $ffrom -> $fto: $!\n"
+    }
+  }
+}
+
+\end{verbatim}
+\end{example}
+
+It's not quite identical to Perl 5 and there are two lines of difference
+between versions.  These changes are difficult to spot, so Damian used
+photogrammatry, which is flipping back and forth between the two
+versions.  You can do this too, since I have formatted this document so
+both versions line up.    
+
+The first change is that \verb'foreach' no longer exists.  Now, we
+always use \verb'for'.  The named iterator variable goes after the list
+and not before.  The argument list \verb'@ARGV' has been renamed to
+\verb'@ARGS'.  According to Damian, it was called \verb'@ARGV' because
+in Latin they were \textit{argumenti}, which the Romans, of course, had
+to write as ARGVMENTI, lacking a proper U.  In English, however they're
+arguments or @ARGS.  The change didn't stand out because Larry is using
+a billion years of evolution against you, and \verb'@ARGS' is more
+natural than \verb'@ARGV'.  The Perl 6 name is cunningly chosen to look
+more familiar than the Perl 5 it replaces.  
+
+So Perl 5 porting can be
+done by \verb's/V/S/g'.  (Just don't use V in any of your existing Perl
+5 programs.)  If you want to move from Perl 5 to Perl 6, use the
+\verb'p52p6' program, which will port 95\% of the programs, 95\% of the
+time.  
+
+\begin{example}
+The second change is in the substitution regexp: 
+\begin{verbatim}
+s/$from/$to/      # Perl 5 
+s/<$from>/$to/    # Perl 6 
+
+\end{verbatim} 
+\end{example}
+If you
+put a regular expression in, you have to mark it as being special before
+you can use variables or metasyntatic characters.  This means that the
+regexp does not do something unexpected because you have forgotten that
+you have typed in a variable name.
+
+\begin{example}
+Let's look at a more idiomatic version, shall we?
+\begin{verbatim}
+#! /usr/bin/perl -w
+use strict;
+my ($from, $to) = @ARGS[0..1];
+for grep { -l } @ARGS[2..] -> $file {
+  my $ffrom = readlink($file)
+    // warn("$file: $!\n") && next;
+  if (my $fto = $ffrom) =~ s/<$from>/$to/ {
+    unlink $file;
+    if symlink $fto, $file {
+      print "$file: $ffrom -> $fto\n";
+    }
+    else {
+      warn "Couldn't create link $file: ",
+           "$ffrom -> $fto: $!\n";
+    }
+  }
+}
+
+\end{verbatim}
+\end{example}
+
+We take each symbolically linked file, using the \verb'grep' filter.
+For each file, we \verb'readlink'\footnote{The great thing about Perl is
+that all your system calls are native to the language!  No need to suck
+in any wussy libraries.} the file.  If the \verb'readlink' fails, then
+the default operator (\verb'//') kicks in and evaluates the right-hand
+side.  The new default operator works like the or operator \verb'||'.
+The \verb'||' evaluates the right-hand side if the left-hand side is
+false, or undefined.  The \verb'//' only fires on an undef.  The low
+precendence default operator is \verb'err'.  The high precendence default
+is an \verb'||' slured over, and so \verb'err' is merely \verb'or'
+slurred.  Plus, it happens to be mnemonic with the word ``error''.
+
+Note that one of the \verb'if' statements does not have any perenthesis 
+around it, because they are now optional.
+
+A question from the audience: ``Is \verb'$file' local to the \verb'for'
+loop?''  It is, but not how you expect it to be.  When you say 
+\verb'-> $file {', you actually mean 
+to create a subroutine with the parameter \verb'$file', and
+the block is the body of the subroutine.  Or you could have said
+\verb'sub ($file) {'.
+
+Another question: ``Can we say \verb'@ARGS[..3]' to grab everything from 
+0 up to 3?''  Not yet, but Damian is working on getting Larry to accept 
+this.  ``This is the construct you are looking for,'' says Damian with
+his best Sir Alec Guinness impersonation.
+
+\section{It's (no longer) Greek to me}
+Damian asked the Perl 6 design team for short, typical, everday Perl
+programs.  This is a bad idea, because Simon Cozens sent him a 142-line
+character set converter from 8-bit, single-byte-coded ISO-8859-7 Greek
+locale into ASCII.  However, it is elegantly data-driven and was easy to
+adapt it to a shorter, more typical, more everyday task.
+
+What is the modern Greek?  Well, for Damian, it is converting data 
+from the Macintosh non-ISO 8-bit character set to regular
+7-bit ASCII.  The lower 7-bits are exactly the same as ASCII, and the
+upper set has most of the Latin-1 set in them; but not in the same
+positions.
+
+\begin{example}
+\begin{alltt}
+\#! /usr/bin/perl -w
+
+my \%translate = \verb'{'
+  "\verb'\'4"     => "\verb'\'n",   \# fix line endings
+  chr(128) => q\verb'{'A\verb'}',   \# represent \"A
+  chr(129) => q\verb'{'A\verb'}',   \# represent \AA
+           \vdots
+\verb'}';
+
+while (<>) \verb'{'
+  s\verb'{'(.)\verb'}'
+   \verb'{' defined \$translate\verb'{'\$1\verb'}'
+           ? \$translate\verb'{'\$1\verb'}'
+           : \$1
+   \verb'}'ges;
+  print;
+\verb'}'
+
+\end{alltt}
+\end{example}
+
+We store the lookup in a hash table \verb'%translate', and we iterate
+through each character.  If the \verb'%translate' has an 
+entry for that character, use the translation table and if 
+\verb'%translate' has no entry, just reproduce it.
+
+What would that look like in Perl 6?  The first 134 lines that set up
+\verb'%translate' would be exactly the same, syntactically.  However,
+semantically they would be slightly different.  But in a Zen-like
+paradox, it works out properly.  In Perl 5, a construct such as:
+\verb'chr(128) => q{A}' is merely a sequence of two values, separated by
+a fat-comma.  In Perl 6, the same syntax is a pair constructor.  This is
+equivalent to LISP \verb'cons'.  It creates a single value with two
+components: a key (\verb'chr(128)') and a value (\verb'q{A}').  But when
+you take such a value and assign it to a hash, the key becomes the entry
+key and the value becomes entry value.  So the overall effect is the
+same as before.
+
+In Perl 6, they have eliminated the need for the \verb'each' built-in.
+Instead, you can use a \verb'for' loop, because Perl
+6 uses lazy evaluation.  So you can say \verb'$var.key' and
+\verb'$var.value', like any good object-oriented langauge.
+
+\begin{example}
+The rest of the program, it will look like this:
+\begin{verbatim}
+while (<>) {
+  s:e{ (.) }
+     {$(defined %translate{$1}
+             ?? %translate{$1}
+             :: $1
+     )};
+  print;
+}
+
+\end{verbatim}
+\end{example}
+
+The observant will noticed that the modifiers for regular expressions
+come before the regexp.  This says, substitute \underline{e}ach; because 
+\verb'e' means \underline{e}ach and works just like the \underline{g}lobal
+modifier in Perl 5.
+
+Note that the dot is being captured, and that whitespace surrounds it.
+The whitespace is ignored, because in Perl 6, the old Perl 5 \verb'x'
+modifier is on by default.  There is no \verb'e' used to evaluate;
+because \verb'e' no longer has that meaning.  The \texttt{\$(\ldots)}
+syntax means to evaluate that string within the parenthesis, just like
+bash syntax.  Now, you no longer need to concatenate strings together
+within a regexp to do selective evaluation.  Extrapolating, we can also 
+use \texttt{@(\dots)} to evaluate in a list context.
+
+The sigil prefix convention is now more uniform.  A hash will always 
+have \verb'%' sigil, whether in scalar,
+array or hash context.  This reduces the amount of confusion, where you
+have to decide what sigil(s) should be used in which context.
+
+The ternary operator has also changed.  The question mark was the only
+operator that was never doubled, so let's double it.   Larry also did
+this so that he could steal \verb'?' and \verb':' and make them more
+useful somewhere else.
+
+A question from the audience is that you are using two hash lookups.
+What we want to do is use it the \verb'%translate' only if it is 
+defined.  This is the perfect use for the new default operator.
+\begin{quote}
+\begin{verbatim}
+s:e{(.)}{$( %translate{$1} // $1 )};
+\end{verbatim}
+\end{quote}
+The new \verb'//' operator evaluates to left-hand operand unless that
+operand is undefined.  It otherwise evaluates to right operand which is
+exactly what's needed in this case (and many others.)  You can chain
+them together, and it will evaluate to the first defined value.  You can
+even use \verb'//=', which means if the lvalue isn't defined, assign it
+the rvalue.
+
+A question from the audience: ``Can you turn the \verb'x' flag off in
+regexps?''  Perhaps, it may not be necessary.  This feature is still
+under debate.
+
+Another question: ``In Perl 5, if you lookup a hash whose key does not
+exist, it auto-vivifies those keys.  Does this change in Perl 6?''  
+To clarify, if Perl 5 reads a hash for a key, and does not find it; it
+creates that key with an undefined value.  In Perl 6, it checks for 
+definition and does not auto-vivify; which makes things cleaner as there
+aren't any dud keys polluting the hash.
+
+You cannot use postfix modifier with a Perl 5 compatible
+expression, even if you do use the \verb's:p5/PATTERN/EXPR/'; 
+unless you go and modify the Perl parser with a 5
+or 6 line module.  But don't do that.
+
+\section{Escaping the \texttt{tar} pits}
+Damian hates \verb'tar'.  Not the bituminous, high-viscosity, coal
+distillate; but rather the voluminous, high-flexibilty, Unix aggregate.
+You package up (``to \verb'tar''') and unpackage (``to un\verb'tar''')
+collections of files.  This utility is essential to everyday work, and
+CPAN distributions are \verb'tar'red together and probably
+\verb'gzip'ped too.  Code via e-mail is often \verb'uuencode'd
+(ASCII-fied) as well.  So Damian's typical working sequence to deal with
+a tarball is ``\verb'man tar', scroll.  \verb'man uudecode', scroll.
+\verb'man gunzip', scroll.  Forget the options and go back.'' The
+problem is that it is impossible to remember all of \verb'tar''s 52
+command-line options.  Well, when he wants to unpack, the options should
+be: \verb'tar -xpf archive.tar', and to repack: 
+\verb'tar cf archive.tar files'.
+
+Un\verb'tar'ring often litters current directory with multiple files.
+People will take 300 files and \verb'tar' them all up, without setting
+up a new directory.  This means it gets messy, and fed up with the
+entire mess that is \verb'tar', he's turned to Perl.  He made two
+programs: \verb'entar' and \verb'untar'.  They automate the entire
+packing/unpacking process (and this includes \verb'gzip'ping and
+\verb'uuencode'ing).  It also detects `messy' \verb'tar'balls that are
+not in a directory,  and throws them into a top-level directory.
+
+\begin{example}
+Let's look at \verb'untar' (\verb'entar' is symmetrical)
+\begin{verbatim}
+sub action { print "$_[0]\n", system $_[1] }
+
+foreach my $file ( @ARGV ) {
+  my $original = $file;
+
+  if ($file =~ s/\.(uu)$//) {
+    action "uuuu'ing $file.$1",
+           "uudecode $file.$1";
+  {
+
+  if ($file =~ s/\.(t?gz)$//) {
+    action "gunzip'ing $file.$1",
+           "gunzip $file.$1";
+    $file .= ".tar" if $1 eq 'tgz';
+  }
+
+  my ($to, $enbundle, $relfile) = 
+    building_for($file, $original);
+
+  action "untar'ing $file $to",
+         "$enblundle tar -xpf $relfile";
+}
+
+sub bundling_for {
+  my ($file, $dir) = @_;
+  chomp(my @files = open (FILELIST, "tar t <$file|")
+                    && <FILELIST>);
+  return ("(no contents)", "", $file)
+    if !@files;
+  return ("to $files[0]", "", $file)
+    if @files == 1 ||
+      $files[0] =~ m{/$} &&
+	  !grep {$_ !~ /^\Q$files[0]/}
+	  @files[1..$#files.end];
+  $dir .= ".CONTENTS";
+  return ("to $dir",
+  "mkdir $dir; cd $dir;",
+  "../$file");
+}
+
+\end{verbatim}
+\end{example}
+
+This is not the most elegant way of doing this, but it took 10 minutes
+to write.  It just works.  It's a typical example of Perlish `shell
+glue'.  There are a few changes needed to turn it into Perl 6.
+
+\begin{example}
+\begin{verbatim}
+sub action { print "$_[0]\n", system $_[1] }
+
+for @ARGS -> $file {
+  my $original = $file;
+
+  if ($file =~ s/\.(uu)$//) {
+    action "uuuu'ing $file.$1",
+           "uudecode $file.$1";
+  {
+
+  if ($file =~ s/\.(t?gz)$//) {
+    action "gunzip'ing $file.$1",
+           "gunzip $file.$1";
+    $file _= ".tar" if $1 eq 'tgz';
+  }
+
+  my ($to, $enbundle, $relfile) = 
+    building_for($file, $original);
+
+  action "untar'ing $file $to",
+         "$enblundle tar -xpf $relfile";
+}
+
+sub bundling_for {
+  my ($file, $dir) = @_;
+  chomp(my @files = ($FILELIST = open ("tar t <$file|")
+                     && <$FILELIST>);
+  return ("(no contents)", "", $file)
+    if !@files;
+  return ("to @files[0]", "", $file)
+    if @files == 1 ||
+      @files[0] =~ m{/$} &&
+	  !grep {$_ !~ /^@files[0]/}
+	  @files[1..];
+  $dir _= ".CONTENTS";
+  return ("to $dir",
+  "mkdir $dir; cd $dir;",
+  "../$file");
+}
+
+\end{verbatim}
+\end{example}
+
+The first change is that the Perl 6 concatenation operator is \verb'_'
+because the \verb'.' is needed \verb'.' for method calls.  Most modern
+object-oriented languages use period as an object dereference.  The
+advantage is that it is a larger thing and is easier to see.  Plus, it
+looks like a dot that is moving at warp speed.  Besides, you need
+\verb'->' as a pointy-sub, or even a lambda (\rotatebox{270}{$\lambda$})
+on its side.
+
+Notice how the sigils on the variables are simplified.
+By the way, you can use the simplified variable syntax, with the new
+consistent sigils in Perl 5 with the
+Perl6::Variables\footnote{Perl6::Variables is written by a brilliant,
+young Australian programmer and can be gotten from
+\url{http://www.csse.monash.edu.au/~damian/CPAN/}} CPAN module.
+
+Array slices are the next thing to change. Instead of each array 
+having a property:
+
+\verb'@files[1..@files.end];'
+
+the syntax becomes
+
+\verb'@files[1..];'
+
+\noindent because we can leave out the upper bound completely.
+
+The next change is to remove that nasty \verb'\Q' from the 
+regexp:
+
+\verb'/\Q@files[0]/'
+
+\noindent We don't treat is as special by default, so there is no need
+for the quoted prefix.  If it was supposed to be a regexp, we would use
+\verb'/<@files[0]>/' instead.
+
+Final change is most signficant.  \verb'open' no longer takes bareword file
+handles, and returns the filehandle as its value.  This makes a lot of
+sense, because it acts like a lot of other languages, and exploits the
+return value.  However, the syntax looks uglier, more of a
+backwards step, but that's because it's not idomatic Perl 6.
+
+\begin{example}
+\begin{verbatim}
+sub bundling_for {
+  my ($file, $dir) = @_;
+  chomp(my @files = <open ("tar t <$file|") or die>);
+  return ("(no contents)", "", $file)
+    if !@files;
+  return ("to @files[0]", "", $file)
+    if @files == 1 ||
+      @files[0] =~ m{/$} &&
+	  !grep {$_ !~ /^@files[0]/}
+	  @files[1..];
+  $dir _= ".CONTENTS";
+  return ("to $dir",
+  "mkdir $dir; cd $dir;",
+  "../$file");
+}
+
+\end{verbatim}
+\end{example}
+Look at that \verb'open' call now.  It's elegant enough to make grown
+men weep.  Now, you can put them right inside the \verb'<>' operators,
+as it should be.
+
+Now, Perl 6 uses mark and sweep garbage collection, instead of reference
+counting.  In fact, when things fall out of scope, the system destroys
+unused objects, so you know exactly when things will disappear.
+
+You can do member dispatching on subroutines with different
+parameter lists, like C++ overloading, but the Perl people will get it
+right. Perl will do the appropriate thing according to the dynamic
+type of the parameters and not the static type.
+
+A question from the audience: ``If you have parameter type checking, how
+do you get the remaining arguments of a subroutine?''  If you want an 
+array at the end of a subroutine to suck up the remaining
+arguments, you will use \verb'sub ($a, $b, *@c) { ... }'.  This is
+because \verb'sub ($a, $b, @c) { ... }' means to expect a scalar, a
+scalar, and an array; and it will die if is sees a list of scalars
+where an array ought to be.  \verb'*@' will be the ``suck
+it up soldier'' operator.  
+
+\section{Mail domination}
+This is a program that does mail filtering and munging.
+
+\begin{example}
+\begin{verbatim}
+use warnings;
+
+$code = shift
+  or die "usage: $0 code [file ...]\n";
+$process =
+  eval "sub { local \$_=shift; $code }";
+die if $@;
+
+@ARGV = map { glob } @ARGV;
+
+while (<>) {
+  if (/^From /) {
+    $process->($msg) if $msg;
+    $msg = '';
+  }
+  $msg .= $_;
+}
+$process->($msg) if $msg;
+
+\end{verbatim}
+\end{example}
+
+This program evaluates a Perl script across files presented on the
+command line.  It takes the first argument as Perl, and expands the 
+globbing in the rest of \verb'@ARGV'.
+It's like mapping an arbitrary piece of Perl code across every message
+in a series of files.  For example, to extract the text of any messages
+from a given sender out of any of a set of files:
+
+\verb#$ mailmap 'print if /^From:.*larry/' E:mail\*#
+
+Or print subject lines of sheepish messages:
+
+\verb#$ mailmap '/sheep/ && print /^Subject:(.*)/m' X:*#
+
+\begin{example}
+In Perl 6, it looks like this:
+\begin{verbatim}
+use warnings;
+
+$code = shift
+  or die "usage: $0 code [file ...]\n";
+$process =
+  eval "sub { my \$_=shift; $code }";
+die if $!;
+
+@ARGS = map { glob } @ARGS;
+
+while (<>) {
+  if (/^From \s/) {
+    $process($msg) if $msg;
+    $msg = '';
+  }
+  $msg _= $_;
+}
+$process($msg) if $msg;
+
+\end{verbatim}
+\end{example}
+
+\verb'$_' in Perl 6 is always lexical; unlike in Perl
+5 where it is global.  We need to say \verb'my' to declare the variable
+\verb'$_' in the lexical scope.  \verb'local'ising is difficult to explain 
+to beginners, in fact a lot of people claim to
+'know' how to use \verb'local' but they just can't seem to put it into 
+words.  Lexical variables are easier
+to work with because they only exist in the static scope.
+
+\verb'$!' is used instead of \verb'$@'.  In Perl 6, \verb'$!'
+is the only error variable;
+unlike the four (\verb'$!', \verb'$@', \verb'$?' and \verb'$^E') in Perl 
+5.  But \verb'$!' is not just a string, but
+rather an object that you can do things with.  In Perl 6, all exceptions
+and all error messages are fully object oriented.
+
+You need a \verb'\s' to drop in a space in Perl 6 regexps, because 
+whitespace is merely formatting now.
+You can also use \verb'<sp>' to mean a space as well.
+
+By putting the evaluation into \verb'$process', Perl doesn't need to 
+use \verb'->' to dereference the string.
+Because \verb'$process' is a scalar, it must be a subroutine which
+expects arguments.  Hence, a free advantage of changing the sigils:
+subroutine calls look like subroutine calls.  A common mistake in Perl 5
+would be to leave out these 
+dereferences.  You can put a period in 
+there if you want, to make it look like \verb'$process.($msg)'.
+This saves typing, and saves typos.  
+
+\begin{example}
+And here it is idiomatically:
+\begin{verbatim}
+use warnings;
+
+&process := eval "sub (\$_) { $(shift//die) }"
+              // die "usage: $*PROG code [file ...]\n";
+
+@ARGS.map(&CORE::glob);
+
+while <> {
+  if /^From \s/ {
+    process($msg) if $msg;
+    $msg = '';
+  }
+  $msg _= $_;
+}
+process($msg) if $msg;
+
+\end{verbatim}
+\end{example}
+
+We can exploit the fact that parameters are declared with subroutines to
+avoid using \verb'my' to declare \verb'\$_' because parameters are 
+always lexically scoped.    
+
+Look at how we have defined our \verb'&process' subroutine.  
+Whatever is in the brackets is
+evaluated before it dies.  This is equivalent to Perl 5: 
+
+\verb'process = \ eval "...";'
+
+\noindent This will be marginally faster as well, because you're not
+doing a derefernce each time.
+
+\verb':=' is a binding operator.  It aliases the anonymous subroutine to
+become \verb'&process'.  If you want two scalar variables references the
+same places in memory, so you can abbreviate one of them.  You can even
+bind to an array slice and even extend it as necessary.  Granted, you
+can do approximately the same thing with typeglobs, but those are fairly
+scary as well.
+
+\verb'$*PROG' is what \verb'$0' is in Perl 5.  This is because
+\verb'$0' has a much better use in Perl 6.
+
+The list processing operators may become members of an array.  This use
+is controversial, but Damian believes it will happen.  The \verb'map' does
+in-place processing which is more efficent than making a copy of the
+array \verb'@ARGS'.  It may even become \verb'@ARGS.glob;'.  
+
+The \verb'shift//die' allows null invocations like: 
+\verb'C:\> mailmap "" E:mail\*'
+
+\noindent If we used \verb'||', it would fail to work properly on 
+empty strings, but \verb'//' knows the null string is defined.
+
+\section{Extreme Perl 6}
+
+Damian has talked about Real World programs.  Now let's talk about the
+other extreme, where he normally lives.  What about Perl obfuscation?
+We don't want to make it too easy to read.  Good news, you can still
+play Perl golf and eliminate whitespace, you can definitely include line
+noise.  You will still be able to have fun with Perl 6, a lot more fun;
+because the shackles are coming off.
+
+He then showed us the SelfGOL program ported to Perl 6.  I only got
+enough time to capture part of it:
+
+{\small
+\begin{verbatim}
+#!/usr/bin/perl -w
+$S=$DATA.irs(undef);seek$DATA,?0,!$s;$_=<$DATA>;$s&&print||(&[q;::\;
+;}:=sub($_){$d=$d-1??$d::$prog;s;';\t#$d#;,$_})&&$g&&do{$y=($x||=20)*($y||8);
+\end{verbatim}
+} 
+\noindent and so on.  Scary stuff\ldots.
+
+And some of Perl fun will become much easier.  The grammar for ''Who's on
+first?'' which was written by a brilliant, young Austrian programmer.
+
+It uses the module Parse::RecDescent, which sets up grammars to do
+parsing.  Which is done in a BNF form of grammar.  It simulates an IRC
+type of conversation between Abbot and Costello, performing their famous
+``Who's on first?'' skit.  Poor Abbot tries to parse what Costello is
+saying as either a question, and unclear response, or an non-sequitor.
+He then asks another question, causing no end to hilarity.
+
+In Perl 6, you can create a grammar for Comedians.  The grammar Costello
+is a Comedian, just like objects.  The BNF syntax is just like the
+RecDescent syntax except it uses Perl 6 regexps on steroids.  
+Damian is just matching answers using regular expressions across
+questions.  In Damian's next Exogesis, he will use this program to
+demonstrate all of Larry's insanity.
+
+\section{The Ascent of Perl}
+The message is, Perl 6 will be different from Perl 5; but never
+gratuitously so.  And rarely grossly so, unless you want it to be.
+There will be a \verb'p52p6' program which upgrades your Perl programs,
+since the changes are minimal.
+
+When syntax or semantics change, it will always be a change for the
+better.  Greater consistency, easier to learn, more Do-What-I-Meanness.
+The new syntax and sematics will almost always be optional, so that you
+can ignore the changes until you actually need them.
+
+All Perl 6 programs will still look and feel like Perl; not C\# or C++ or
+Java, or Lisp.  The sky isn't falling.
+
+\end{document}
+% vim: set tw=72

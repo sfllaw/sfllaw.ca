@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>University of Waterloo Work Reports</title>
+    <link rel="stylesheet" type="text/css" href="/~sfllaw/default.css" />
+  </head>
+  <body>
+    <h1>University of Waterloo work reports!</h1>
+
+    <p class="noindent">Doesn't everyone love <a
+      href="http://www.adm.uwaterloo.ca/infoucal/CECS/work_reports.html">work 
+      reports</a>?  Does that phrase make your heart lighter and put a
+    smile on your face?  No, well, it doesn't evoke feelings of bliss in
+    me neither.</p>
+
+    <p>However, every co-operative education student studying at the
+    University of Waterloo must write them.  Many of them.  Each of them
+    lovingly checked against a series of guidelines before having red
+    marks scribbled upon them.  Then they are returned to the student
+    for formatting fixes so before anyone actually <em>reads</em>
+    them.  Lovely.</p>
+
+    <h2>For the impatient</h2>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.6_lite.tar.gz">Download version 2.6</a>.  Read
+    the INSTALL and README files, which should explain everything you
+    need to know about installation.</p>
+
+    <h2>Formatting rules</h2>
+
+    <p class="noindent">I got all wacko about <a
+      href="http://www.w3.org/2001/sw/">semantic markup</a> when I
+    learnt about this macro package called <a
+      href="http://www.latex-project.org/">L<sup><small>A</small></sup>T<small>E</small>X</a>
+    in the year 2000.  The really cool thing about this concept is
+    this: you write what you want to say, and let the computer do all
+    the formatting for you.  There's been a lot of research in
+    computer-typeset text over the past couple decades, so computers are
+    fairly good at layout now.</p>
+
+    <h2>Meta work report</h2>
+
+    <p class="noindent">I wrote a work report about this work report
+    document class, entitled: <a
+      href="uw-wkrpt-workreport.pdf"><i>Design and evolution of a
+        L<sup><small>A</small></sup>T<small>E</small>X document class
+        for work reports</i></a>.  I thought it was pretty funny, but I
+    do admit it's a corny title.  I've updated it so it uses Type 1
+    fonts within, which should make it nicer for Adobe Acrobat users.
+    The <a href="uw-wkrpt-workreport.tar.gz">source code</a> is
+    available if you are interested in how I typeset it.  I used
+    uw-wkrpt 2.6 for the revised copy of this document.  Sadly enough,
+    it only received a Satisfactory grade.</p>
+
+    <h2>The fruits of my labour</h2>
+
+    <p class="noindent">The result of this discovery?  I realised that I
+    could write my work report in
+    L<sup><small>A</small></sup>T<small>E</small>X and it would look
+    good.  Not only that, if I did it right, I could make a document
+    class that would co-erce my document into conforming with the <a
+      href="http://www.ece.uwaterloo.ca/~wtrc/WrkTrmRpt.html">E&amp;CE
+      Work Term Report Guidelines</a> so that I would never have to make
+    a formatting error again.  After quite a bit of perserverence, and
+    much digging into the internals of
+    L<sup><small>A</small></sup>T<small>E</small>X, I had succeeded.</p>
+
+    <p>The latest version of <a
+      href="uw-wkrpt-2.6_lite.tar.gz">uw-wkrpt</a> (2.6) has some
+    corrections to the Electrical &amp; Computer Engineering work report.  
+    If you do not update, you may <em>fail</em> the checklist.</p>
+
+    <p>If you are unable to build the system by following the INSTALL
+    instructions, you may find that the <a
+      href="uw-wkrpt-2.6.tar.gz">full tarball</a> may be more helpful.
+    It contains pre-compiled versions of the PDFs and can be
+    illustrative of what results you can obtain.</p>
+
+    <p>To use this, you will need either a copy of <a
+      href="http://www.tug.org/teTeX/">teT<small>E</small>X</a> (under
+    *NIX) or <a href="http://www.miktex.org/">MiKT<small>E</small>X</a>
+    (under Windows) to compile the documents.  Ryan Leslie reports that
+    MiKT<small>E</small>X does not ship with many packages unless you
+    get the full install.  I highly recommend that you do so.</p>
+
+    <p><em>Danger Will Robinson!  Danger!</em> This is rough around the
+    edges stuff since I've just restructured it.  I haven't ever written
+    any Math or Soft Eng. reports before, so I probably got it wrong.
+    I'd appreciate it if you tried it out, and gave me feedback.
+    Patches and bug reports are welcome.</p>
+
+    <h2>Historic Versions</h2>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.5_lite.tar.gz">Version 2.5</a> had more
+    rather large corrections to the Software Engineering work
+    report.</p>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.4_lite.tar.gz">Version 2.4</a> had some
+    rather large corrections to the Software Engineering work
+    report.</p>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.3_lite.tar.gz">Version 2.3</a> had some
+    rather large corrections to the Math work report.</p>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.2_lite.tar.gz">Version 2.2</a> just had some
+    minor corrections to formatting.</p>
+
+    <p class="noindent"><a
+      href="uw-wkrpt-2.1_lite.tar.gz">Version 2.1</a> had some
+    important bug fixes for Math and Software Engineering students.</p>
+    
+    <p class="noindent"><a
+      href="uw-wkrpt-2.0_lite.tar.gz">Version 2.0</a> introduced
+    many new features.  First and foremost, it is now documented!
+    Another nifty feature is that it knows about several different work
+    report formats:</p>
+
+    <dl>
+
+      <dt>Co-operative Education &amp; Career Services</dt>
+      <dd>Used by the most programs at Waterloo, the CECS <a
+        href="http://www.cecs.uwaterloo.ca/manual/">guidelines</a> are
+      the most common, and therefore the default.</dd>
+
+      <dt>Electrical &amp; Computer Engineering</dt>
+      <dd>These <a
+        href="http://www.ece.uwaterloo.ca/~wtrc/WrkTrmRpt.html">guidelines</a>
+      are for EE or CE students.</dd>
+
+      <dt>Faculty of Mathematics</dt>
+      <dd>The Math department, which includes Computer Science, has its
+      own set of <a
+        href="http://www.math.uwaterloo.ca/navigation/Current/workreport/index.shtml">guidelines</a></dd>
+
+      <dt>Software Engineering</dt>
+      <dd>These <a
+        href="http://www.softeng.uwaterloo.ca/Current/work_report_guidelines.htm">guidelines</a>
+      are mainly derived from the E&amp;CE ones, and have many
+      similarities.  There is also a small Math guideline influence.</dd>
+
+    </dl>
+
+    <p>This piece of software was called uw-ece-workreport because it
+    was only good for E&amp;CE work reports.  Now, I have changed its
+    name to reflect its true nature.  Of course, it also conveniently
+    fits in 8.3 long filenames.</p>
+
+    <p>In <a href="uw-ece-workreport-1.1.tar.gz">version 1.1</a>, the
+    Table of Contents now correctly implements the specification.  As
+    well, the example document provided shows off many more features,
+    some of which essential to actually writing a satisfactory work
+    report.  <a href="uw-ece-workreport-1.0.tar.gz">Version 1.0</a>
+    is available as well.</p>
+
+    <div>
+      <hr />
+      <i>Updated 20 December 2003</i>
+      <br />
+      <a
+        href="http://validator.w3.org/check/referer">
+        <img src="http://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1!" height="31" width="88" />
+      </a>
+    </div>
+  </body>
+</html>
+<!-- vim: set tw=72 ts=2 sw=2 et: -->

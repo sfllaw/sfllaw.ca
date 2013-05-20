@@ -1,0 +1,920 @@
+\documentclass{article}
+
+\usepackage{url}
+
+\title{Life, the Universe, and Everything}
+\author{Damian Conway \and Simon Law\\Summarizer}
+\date{9 June 2002}
+
+\DeclareTextSymbol{\textless}{OT1}{`\<}
+\DeclareTextSymbol{\textgreater}{OT1}{`\>}
+
+\begin{document}
+
+\maketitle
+
+\noindent This is the second talk Damian Conway is doing in Toronto.  It
+was held at the University of Toronto in Sydney Smith Hall.  The
+contents of this summary are from notes taken to summarize what Damian
+is talking about, and any errors that are contained here are all mine.
+
+\section{Pushing the envelope}
+His first big show-stopper presentation was held during YAPC::NA 19100
+on the topic of Quantum::Superpositions.  This is a module that allows
+you to apply quantum physics to Perl.  It was very well received, but he
+felt it was really ``narrow'' in scope.  (He showed us about a page full
+of text, on the topics he covered during that presentation.)  Since
+then, he's broadened his range of topics a little.  (He then shows three
+pages of fine text.)  In other words, "Life the Universe and
+Everything."  This talk is dedicated to the late Douglas Adams
+(1952--2001).
+
+\section{Life}
+Nowadays, he's Slashdotted on a regular basis, which always leads to a
+huge increase in e-mail volume.  The most common question people ask is
+this ``Would you like to earn an extra \$50,000 per year?  With no 
+initial investment?  In your spare time?''
+
+The second most common question is ``Are you lonely?  Looking for
+eXXXitement?  Would you like to discover mature and adventurous new
+friends?  Got a credit card?''
+
+The third most common question is
+``Do they \_really\_ fund you to do all that weird stuff and answer
+nonsense questions?''  The answer was, ``Yes,'' but now Damian is no
+longer working for Yet Another Society and now has to do real and
+respectable work.
+
+The next most common question is
+``Are you related to John Conway?''  He wasn't sure, but fortunately,
+O'Reilly came to his assistance, with the title ``Conways in a Nuthouse: 
+A Desktop Reference''  Apparently, John Horton Conway (no relation) a
+young British mathematician, came 
+to prominence in the
+mid 1960's.  He had a Fellowship at
+cambridge University but his career was going nowhere.  That was, until 
+mid 60's he was
+walking down Carnaby Street and realised something very profound in
+math, but I couldn't copy it down.  John's most famous single equation
+came in 1970 and is written as:  
+\[c_{ij}^\prime \leftarrow \sum_{x=i-1}^{i+1}\sum_{y=j-1}^{j+1}
+c_{xy} = 3 + c_{ij}.\]
+The was, of course, Conway's Game of Life.
+
+This implies the other equation:
+\[\lim_{t\rightarrow\infty}
+  \frac{\mathit{work}_\mathit{procedure}}{\mathit{work}_\mathit{effort}} 
+  \rightarrow 0.\]
+
+The ``Game of Life'' sounds like a Bruce Lee sequel, which prompted
+Damian to show a doctored photograph of Bruce Lee knocking over John
+Conway.  Damian then demonstrated a version he had written in Perl using
+the DFA::Cellular module.  It apparently is still the single greatest
+waster of CPU cycles after SETI@home.  And of course, Jenna Jameson.
+
+\subsection{Automata}
+It's all about cellular automata.  Take a big grid, and put stuff on it.
+Inputs on each cell are the single values stored in the cell and the
+adjacent cells.  Output is the new  value of the cell itself.  Run in
+phases: observe the neighbourhood, compute the new state, and update
+your appreance.  Results in complex emergent behaviour from very simple
+computation devices, which makes pretty patterns.  (And sells books on
+new kinds of science.)
+
+\subsection{Live Game}
+Take an average Perl Mongers audience, for example.  Everyone whose name
+contains the letter `e' should put their hands up.
+
+\subsubsection{Phase 1}
+Everybody look around and count the neighbours about you.
+
+\subsubsection{Phase 2}
+If exactly three neighbours had their hands up, put your hand up.
+If exactly two of your neighbours had their hands up, keep you hand up.
+Otherwise, put your hand down.  We tried play these cycles three times;
+and messed up horribly.
+
+\subsection{Computer Life}
+Obviously some minimal level of ability is required to do this.  So we
+normally leave it to a computer; which is far more competent than
+humans.
+
+\subsection{Perl Life}
+A brilliant, young Australian programmer called Damian Conway wrote a 
+module called DFA::Cellular\footnote{You can get all of Damian's modules
+at \url{http://www.csse.monash.edu.au/~damian/CPAN/}}.  It creates an object that takes a
+set of rules and applies them to a grid.  He shows us a sample program
+using this module.
+
+\subsection{DFA::Cellular}
+Rules are specified declaratively.  You show what the cell should see
+around it, and then declare the new value.
+
+We see the cunning arrangement of arguments in the rules lists:
+(\verb'$top', \verb'$middle', \verb'$newstate', \verb'$bottom')
+which allows the program to format rules thus:
+
+\begin{verbatim}
+new " * "
+    "* *" => "*"
+    " * "
+\end{verbatim}
+
+Note the asymmetrical rules in the example, which gives an asymetric
+results.  He didn't do symmetry because he gets lazy and doesn't want to
+type in all the extra rules.
+DFA::Cellular::Rule provides a method to do this for you.  \verb'rotate'.
+Likewise, mirroring a rule is achieved by \verb'mirror'.
+
+\subsection{Speeding things up}
+He added the \verb'rotate' rules to make his rules symmetrical and runs
+his example; but this time, it didn't run as quickly.  That's
+because it has to do four times as many comparisons; which was just 
+too expensive.  But you can also code rules
+implicitly by declaring a subroutine that receieves information 
+on its neighbouring cells and
+returns a new value.  This subroutine is passed in using
+DFA::Cellular::ProcRule.  When Damian recoded his example to use
+implicit, procedural rules; his Game of Life played at a fairly good
+frame rate.
+
+\subsection{Cutting things down}
+Of course, this is Perl so we don't nearly that much code; what he
+showed us was a hundred lines long!  Of course, you can do
+anything in Perl in less than 100 characters.  So, he showed us his
+GOL program, Perl
+golf style.  The Game of Life, in an obfuscated manner.  It
+looked suspiciously like SelfGOL, from his first talk, because it
+is extracted from it.  He ran it, and it played a small Game of Life,
+using zeros instead of asterixes.  If zeroes happen to
+be your thing, you can do that in DFA::Cellular as well.  Use the
+\verb'mapout'
+method to grab each cell value before it is displayed and changes it.
+
+\subsection{The Awesome Power of Life}
+The Game of Life holds a fascination for certain breeds of geek.  
+Try a web search on
+"game of life" and people do unbelievable things with it.  John Conway
+himself showed that the Game of Life is Turing complete, which means 
+that any
+computation that you can do on any computational device, you can do
+using the Game of Life, and a big enough grid.  This is all done 
+with gliders to pass information around.
+It's a simple pattern that appears to move over time, yet retains it's
+structural integrity.
+\begin{verbatim}
+**
+* *
+*
+\end{verbatim}
+This is the simplest example of a more general phenomenon.  People have
+discovered hundreds of these self-replicating patterns.  These are
+called spaceships, that move diagonally or straight across the screen.
+Each spaceship has different speeds.  The fastest one can go, the
+speed of light on a Game of Life board, is 1
+cell per second.  Damian has a favourite glider, shown below.  When it
+hits a wall, it dies but sends out a glider as a sort of life-boat.
+\begin{verbatim}
+ *   *
+*
+*    *
+*****
+\end{verbatim}
+
+You can put gliders together to create logic gates.  Each glider
+represents a 1 bit.  Damian then illustrates a
+NOT gate, which I could not copy down.  A NOT gate will send out 
+gliders at regular intervals, so if you arrange a set of gliders to
+move along the path of the NOT gate gliders, they will annihlate each
+other on collision; thereby NOTting.  He shows us a scenario of three 
+gliders (representing 111), interacting with the NOT gate and cancelling
+out.  He shows us the same scenario with only two
+gliders, (101), so you end up with (010).
+
+\subsection{Emergent Logic}
+You can build AND and OR gates too.  A guy called Paul Rendell took
+these and other exotica and implemented a Turing machine.  The way he
+lays it out you even see the memory cells, and the ``paper tape'' that
+holds the program.  Damian showed us a memory cell, which looks very
+complicated and scary.
+
+\subsection{Quantum Life}
+Well, when Damian saw all those glider streams interacting and 
+cancelling each other out, he
+was reminded of recent research with quantum computing; which
+involved interfering streams of light.
+
+Superpositions and automata?  Most obvious route is to superimpose the
+rules to get one superpositioned quantum rule.  Then, you would only
+have one rule to test, in constant time.  So, he shows us a small board
+with the Game of Life.  But then, he superimposed that one state into a
+quantum superposition.  He'll use a Shroedinger rule, that will choose
+life or death 50\% of the time.  Then, he superimposes the two together.
+Sometimes, this means that the cell will be both alive and dead.  Then,
+we use mapout to take the eigenstates of the superposition, if there is
+more than one state, we use a ? to display the half undead state.
+
+Note tahat complete chaos doesn't overwhelm the system.
+
+\subsection{And now for something completely different}
+We will come back to the Game of Life later, but meanwhile Damian will 
+talk about Perl 6;
+specifically about the process of getting Larry to accept the
+features Damian wants.
+
+\subsection{Under the influences}
+Larry's thoughts range very widely.  He has been influenced by
+Python, Ruby, Java, Ada, even
+Icon.  We can even see Perligata's influence in a few places.  Wait
+until you hear about Perl 6 adverbs.  But it isn't crazy enough.
+Obviously, the subtle approach (i.e. Latin) has failed.  Damian needed 
+to find a more insistent way of convincing him.
+
+\subsection{London.pm to the rescue!}
+The London Perl Monger's mailing list is very interesting; because
+they never talk about Perl, at all.  Damian was reading the London.pm
+list, and Robin Houston described what Hamlet was like in Pidgin.
+Damian
+just had to point out, writing in New Guinea pidgin, "It's nothing 
+compared to reading it in the original Klingon!"  Then, he thought 
+to himself, "Klingon... hmmm."
+
+\section{The Universe... Space, the Final Frontier}
+If Latin won't move Larry, maybe, maybe the Warrior's Tongue will.  This
+will be a quick introduction to \textit{tlhIngan Hol}.  He shows 
+another O'Reilly title, which apparently helped him a lot:
+``Holvan Daghojcughbe' vaj blHegh'' which translates to ``Buy this book, or I 
+will kill you!''
+
+\subsection{Nuq Jatlh, williS?}
+The Klingon language was devised in 1984 by linguist Dr. Marc Okrand.
+He was commissioned by Paramount to create a language for money!  So, he
+was going to play a big joke on the suits upstairs.  His word ordering 
+is the least common
+ever, IOVS (indirect object, object, verb, subject.)  Coincidentally
+enough, most of these IVOS languages are in New Guinea.
+
+\noindent As an example of Klingon syntax:
+
+\verb"QaghDaqvaD vay vIghItlh jIH"\\
+translates to English as:
+
+``to the place for errors, something, write I''\\
+or more idiomatically:
+
+``to STDERR, something, write I''
+
+\begin{center}
+\begin{tabular}{l|l}
+\multicolumn{1}{c|}{\it tlhIngan Hol} & \multicolumn{1}{c}{English}\\\hline
+\verb"QaghDaq" & STDERR\\
+\verb"vaD" & to\\
+\verb"vay" & something\\
+\verb"vIghlth" & write\\
+\verb"jIH" & I
+\end{tabular}
+\end{center}
+
+The imperative form is far more common, though:
+
+\verb"QaghDaqvaD vay yIghItlh!"
+
+``to the place for errors something write!''
+
+\verb"(STDERR $something) print;"
+
+\noindent This of course, means that Klingon is Reverse Polish Notation.
+
+\subsection{A precedent}
+In early 2001, Damian gave a talk on Lingua::Romana::Perligata in New 
+York.  This led young Jeff Pinyan badly astray.  Japhy created 
+RPerlN --- Reverse Perlish Notation.
+
+\noindent For example:
+
+\verb'($name, $age) = split " ", $string;'\\
+becomes
+
+\verb'(name$, age$) " ", string$ split =;'\\
+This translates to the Klingon:
+
+\verb"(pongvaD qanvaD) << >> mu' yIsIj tInob!"
+
+\subsection{Variables}
+Klingon uses inflection to denote number:
+
+\verb"QaghDaqvaD vay' yIghItlh!"
+
+\verb"vay'" means something.  So:
+
+``to STDERR some things write!''\\
+is
+
+\verb"QaghDaqvaD vay'mey yIghItlh!"
+
+We can have scalars and arrays with the same root name (just as in
+Perl):
+
+\begin{center}
+\begin{tabular}{l|l}
+\multicolumn{1}{c|}{\it tlhIngan Hol} & \multicolumn{1}{c}{Perl}\\\hline
+\verb"vay'" & \verb'$something'\\
+\verb"vay'mey" & \verb'@somethings'
+\end{tabular}
+\end{center}
+
+\subsection{Making a hash of it}
+What about hashes?  Fortunately, the Klingon \verb'-mey' suffix only 
+refers to things incapable of speech.  If the somethings had been 
+articulate:
+
+\verb"QaghDaqvaD vay'pu' yIghItlth"
+
+This is the difference between an array and a hash.  Arrays are
+subscripted mutely with mute integers.  Hashes referenced with
+dialogue, or strings.
+
+\begin{center}
+\begin{tabular}{l|l}
+\multicolumn{1}{c|}{\it tlhIngan Hol} & \multicolumn{1}{c}{Perl}\\\hline
+\verb"vay'pu'" & \verb"%something"
+\end{tabular}
+\end{center}
+
+\subsection{Subscripts}
+Amazingly, this is something that Larry has already borrowed from
+Klingon.  Numerical subscripts are just ordinals:
+
+\verb"kill $starships[5][3];"
+
+This is really
+``from starships, from the 5th of them, the 3rd of them, kill it!''
+
+\verb"'ejDo'meyvo' vagh DIchvo' wej DIch yIHoH!"
+
+The \verb'DIch' tag marks an ordinal.
+\verb'vagh DIch' is 5, and \verb'wej DIch' is 3.
+
+The ablative \verb"-vo'" suffix marks something being 
+subscripted (it means ``taken from'')
+Note that the \verb"-mey" suffix on the original array did not change.  
+The specifier suffix remains the same.  So the proper back-translation 
+is:
+
+\verb"kill @starships[5][3];"
+
+\noindent Perl 6 does this!  It's variable syntax is stolen straight 
+from Klingon.
+
+If we are subscripting a hash, this have a different tag (\verb'Suq'):
+
+\verb^kill $enemies{"ancient"}{'human'};^\\
+which translates as:
+
+``From enemies, from the "ancient" ones, the 'human' one, kill him!''
+
+\verb"jaghpu'vo' <<ancient>> Suqvo' <human> Suq yIHoH!"
+
+Again, the \verb"-pu'" ``I'm a hash'' suffix is retained when 
+subscripting.  So it's really Perl 6-ish.
+
+With scalars, the \verb'DIch' or \verb'Suq' tag still indicates what 
+kind of thing is being subscripted.  So you do not need arrows, just 
+as in Perl 6.
+
+\verb"jepaHDIlIwI'vo' <<stupid>> Suqvo' wa' DIch yIHoH!"
+
+\verb^kill $jeopardyPoster{"stupid"}[1];     #Perl 6^
+
+\verb"kill $jeopardyPoster->[1]{'stupid'};   #Perl 5"
+
+\subsection{Lvalues}
+All the variables shown above ended up in the accusative case because
+they were the direct objects of the verb ``kill''.  When variables are 
+assigned to,
+they become indirect objects of the assignment.  The lvalue requires the
+dative case, which has the prefix \verb"vaD".  This means 
+''for the benefit of.''
+
+\verb"'ejDo'meyvaD wa' 'uy' chen tInob!"
+
+\verb"@starships = (1..1000000);"
+
+\noindent Another example:
+
+\verb"jaghpu'vaD(<<QIp>> wa' <<jIv>> cha') tInob!"
+
+\verb'%enemies = (stupidity=>1, ignorance=>2);'
+
+\noindent And a third:
+
+\verb"jepaHDIlIwI'vo' wa' DIchvo' <<stupid>> SuqvaD ghur!"
+
+\verb'++$yeopardyPoster->[1]{"stupid"};'
+
+\subsection{Declarations}
+Variable declarations also use suffixes:
+
+\begin{center}
+\begin{tabular}{l|l}
+\multicolumn{1}{c|}{\it tlhIngan Hol} & \multicolumn{1}{c}{Perl}\\\hline
+\verb"wIj" & \verb'my'\\
+\verb"maj" & \verb'our'\\
+\verb"ma'" & \verb'our' (hash)\\
+\verb"vam" & \verb'local'\\
+\end{tabular}
+\end{center}
+
+\subsection{Line Noise - Just say \texttt{\textless\textless 
+ghobe'!\textgreater\textgreater}}
+In general, Klingon programming requires far less punctuation.
+The \verb'<...>'
+and \verb'<<...>>' string markers are known as \verb'pachmey' (claws)
+and \verb"pachmey cha'logh" (pairs of claws.)
+
+\verb"'etlh HIvtaH" and \verb"'etlh HubtaH" are attacking and 
+defending swords: \verb'(...)'
+
+\verb"betleH HIvtaH" and \verb"betleH HubtaH" are attacking and defending 
+betleth: \verb'{...}'
+
+Klingon has a vast set of operators:
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Perl} & \multicolumn{1}{c|}{\it tlhIngan Hol}
+& \multicolumn{1}{c}{English}\\\hline
+\verb"=" & \verb"yInob" & Give\\
+\verb"+" & \verb"yIchel" & Add\\
+\verb"-" & \verb"yIchelHa'" & Un-add\\
+\verb"++$a" & \verb"yIghur" & Increase\\
+\verb"$a++" & \verb"yIghurQav" & Increase afterwards\\
+\verb".." & \verb"yIchen" & Form up\\
+\verb"eq" & \verb"rap'a'" & The same?\\
+\verb"==" & \verb"mI'rap'a'" & The same number?\\
+\end{tabular}
+\end{center}
+
+The numeral digits from zero to nine in Klingon are:
+\verb"pagh", \verb"wa'", \verb"cha'", \verb"wej", \verb"loS",
+\verb"vagh", \verb"jav", \verb"Soch", \verb"chorgh", and \verb"Hut".  
+Powers of ten are indicated by \verb"maH", \verb"vatlh", \verb"SaD", 
+\verb"netlh", \verb"bIp", and \verb"'uy'".
+
+For example:
+\verb"wa'Sad Hutvatlh chorghmaH loS" translates to
+1984.  Which, of course, was much better in the original Klingon version.
+
+\subsection{References}
+To get a reference, Klingons use the \verb"nuqDaq" prefix tag 
+(which translates to ``where is...?!'')
+
+They dereference with the \verb"-vethlh", \verb"-meyvetlh", or 
+\verb"-pu'vethlh" suffixes (mean ``that!'', ``those!'', and ``them!'')
+
+\noindent As an example:
+
+\verb"refvaD nuqDaq var yInob!"
+
+\verb"$ref = \$var;"
+
+\noindent Notice how cleverly the semicolon is obviously translated as an
+exclamation point.\footnote{Note that Damian was screaming his Klingon 
+with great gusto, to emphasise the exclamation.  I think he went through 
+four bottles of water in this section.}
+
+\verb"refvetlh yIghItlh!"
+\verb"print ${$ref};"
+
+\subsection{Conjunctions}
+Look at how elegantly the Klingons arrange their binary operators.
+Their high precedence operators are the mirror images of their high
+precedence operators.
+
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Precedence} & \multicolumn{1}{c|}{AND}
+& \multicolumn{1}{c}{OR}\\\hline
+Perl low     & \verb"and" & \verb"or"\\
+Klingon low  & \verb"'ej" & \verb"qoj"\\
+Perl high    & \verb"&&"  & \verb"||"\\
+Klingon high & \verb"je"  & \verb"joq"\\
+\end{tabular}
+\end{center}
+We should do this in Perl 6 as well.  So, Damian's next
+suggestion for Larry is the following:
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Precedence} & \multicolumn{1}{c|}{AND}
+& \multicolumn{1}{c}{OR}\\\hline
+Perl 5 low   & \verb"and" & \verb"or"\\
+Perl 6 low   & \verb"and" & \verb"or"\\
+Perl 5 high  & \verb"&&"  & \verb"||"\\
+Perl 6 high  & \verb"dna" & \verb"ro"\\
+\end{tabular}
+\end{center}
+Mnemonically, you can think of str\underline{and}s of \underline{DNA},
+and \underline{ro}ws instead of \verb"||" (columns).
+
+
+\subsection{OOK}
+Object Oriented Klingon.  We will have none of this special treatment
+nonsense.  If a method is subroutine, we call it as a subroutine.  If
+the first argument is special because it's an object, we mark it so.
+
+\noindent A normal procedure call works like this:
+
+\verb"Hich DoSmey yIbaH!"
+
+\verb"fire($weapon, @targets);"
+
+\noindent An object oriented call looks like this:
+
+\verb"Hich 'e' DoSmey yIbaH!"
+
+\verb"$weapon->fire(@targets);"
+
+\noindent As you can see: \verb"'e'" is equivalent to \verb"->"
+
+The incredibly scary thing is that Larry is actually leaning towards
+something like this, because it handles multiple dispatch very well.  
+Multiple dispatch gets called for the interaction of arguments,
+as opposed to just one.
+
+\noindent Procedurally:
+
+\verb"(jiH wanl' Segh) tItagh!"
+
+\verb"process($screen, $event, $mode);"
+
+\noindent Object orientedly:
+
+\verb"(jiH 'e' wanl' Segh) tItagh!"
+
+\verb"$screen->process($event, $mode);"
+
+\noindent But if we want all three things to decide which method is
+used:
+
+\verb"(jiH 'e' wanl' 'e' Segh 'e') tItagh!"
+
+\verb"($screen, $event, $mode)->process;"
+
+\noindent It even handles out-of-order argument calls correctly.
+
+\verb"(jiH 'e' wanl' Segh 'e') tItagh!"
+
+\verb"($screen, $mode)->process($event);"
+
+\subsection{Inequalities}
+Here, Klingon has a major advantage over stock Perl.  
+One inequality operator is used, instead of eight.  This substantially
+reduces the amount of complexity in comparing things.
+Klingon does everything with the \verb'>' operator, which says 
+something about Klingon egos.
+
+\verb"var tIn law' 'oH tIn puS"
+
+\verb"$var > $_"
+
+\verb"bigness($var) > bigness($))"
+
+\null
+
+\verb"var mach law' 'oH mach puS"
+
+\verb"$var < $_"
+
+\verb"smallness($var) > smallness($var)"
+
+\null
+
+\verb"var tlha' law' 'oH tlha' puS"
+
+\verb"$var gt $_"
+
+\verb"afterness($var) > afterness($var)"
+
+\noindent In Klingon, any subroutine can be used as a comparison; instead 
+of Perl's rigid and inflexible syntax.
+
+\subsection{Built-ins}
+Controls:
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Perl} & \multicolumn{1}{c|}{\it tlhIngan Hol}
+& \multicolumn{1}{c}{English}\\\hline
+\verb"if" & \verb"teHchugh" & If is true\\
+\verb"unless" & \verb"teHchughbe'" & If it is not true\\
+\verb"while" & \verb"teHtaHvIS" & While being true\\
+\verb"until" & \verb"teHtaHvISbe'" & While not being true\\
+\verb"for(each)" & \verb"tIqel" & Consider then\\
+\verb"goto" & \verb"yIjaH" & Go!\\
+\verb"last" & \verb"yInargh" & Escape!\\
+\verb"next" & \verb"yItaH" & Go on\\
+\verb"redo" & \verb"yInIDqa'" & Try again\\
+\end{tabular}
+\end{center}
+
+\noindent Functions:
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Perl} & \multicolumn{1}{c|}{\it tlhIngan Hol}
+& \multicolumn{1}{c}{English}\\\hline
+\verb"bless" & \verb"DoQ" & Claim ownership of\\
+\verb"die" & \verb"Hegh" & Die\\
+\verb"croak" & \verb"pa'Hegh" & Die over there\\
+\verb"dump" & \verb"mol" & Bury\\
+\verb"reverse" & \verb"noD" & Retaliate\\
+\verb"splice" & \verb"DuQ" & Stab\\
+\verb"srand" & \verb"mIScher" & Create confusion\\
+\verb"substr" & \verb"Iagh" & Dismember\\
+\verb"unshift" & \verb"jegh" & Surrender\\
+\end{tabular}
+\end{center}
+
+\subsection{Synonyms}
+Unlike the myth of the Inuit and their forty odd words for ``snow'',
+there is truth in that tale for Klingons and the \verb'kill' built-in.
+
+\begin{center}
+\begin{tabular}{l|l|l}
+\multicolumn{1}{c|}{Perl} & \multicolumn{1}{c|}{\it tlhIngan Hol}
+& \multicolumn{1}{c}{English}\\\hline
+\verb"kill" & \verb"HoH" & kill\\
+\verb"kill" & \verb"muH" & execute\\
+\verb"kill" & \verb"chot" & murder\\
+\verb"kill" & \verb"bach" & shoot\\
+\verb"kill" & \verb"Hiv" & attack\\
+\verb"kill" & \verb"DIS" & stop\\
+\verb"kill" & \verb"jey" & defeat\\
+\verb"kill" & \verb"be'joy'" & ritualized torture by women\footnotemark
+\end{tabular}
+\end{center}
+\footnotetext{Damian's personal favourite.}
+They have this many because in the heat of programming, you don't want 
+to have to choose your vocabulary too carefully.
+
+Wouldn't it be nice to have more vocabulary
+available; just like the Klingons do?  Maybe have \verb'AUTOLOAD'
+automatically connect to WordNet and find the word you might have meant,
+when you typed something in.  Avaiable now in Perl 5 is the new
+Sub::Junctive module\footnote{Written by a brilliant, young Australian
+programmer}, because it figures out what you \emph{might} have meant.
+Let's say you use \verb'fixed' instead of \verb'set', or \verb'acquire'
+instead of \verb'get'.  You can go further: \verb'set', \verb'fixed',
+\verb'rigid', \verb'ready', \verb'adjust', \verb'Seth' (the Egyptian god
+Set), \verb'determine', \verb'stage_set'.  Now, he was pretty happy
+with just that.  But somebody asked about antynoyms as well.  
+So he's programmed it so that you can say \verb'happy()', or
+\verb'!unhappy()' to mean the exact same thing.
+
+\subsection{Invective operator}
+This is the last suggestion for Larry.  In Klingon there's a special 
+adverb:
+\verb"jay'".  It always comes at the end of a sentence and transforms 
+it into a
+curse.
+
+\verb"qaSpu' nuq 'e' yIja'" 
+
+\hspace{\parindent}``Tell me what happened!''
+
+\verb"qaSpu' nuq 'e' yIja' jay'" 
+
+\hspace{\parindent}``Tell me what the *\#@\& happened!''
+
+You can use this in Klingon programs as a compiler hint.  It tells Perl
+to work extra hard at
+making this statement work.  For Perl 6, Damian has proposed a prefix 
+``venting operator'' \verb"*#@&" be added to
+Perl 6, because that group symbols isn't used for anything yet.  
+It takes zero or more
+arguments, but the argument list stops at first argument that 
+isn't a string in the form \verb"-whatever"
+\begin{verbatim}
+if (!open $fh, $file) {
+  open *#@& $fh, $defaultfile, *#$&
+     or *#@& die $!
+}
+\end{verbatim}
+The reason to skip past the \verb"-whatever" arguments is to make it more
+gramattically correct.
+\begin{verbatim}
+if (!open $fh, $file) {
+  open *#@&-ing $fh, $defaultfile, *#$&-er
+     or *#@&-off die $!
+}
+\end{verbatim}
+
+\section{Everything}
+We will now talk about the Laws of the Cosmos, specifically the Laws of
+Thermodynamics, specifically the Second Law of Thermodynamics.
+
+\subsection{James Clerk Maxwell}
+James Maxwell was a 19th Century of British physicist.  He was a 
+professor of experimental
+physics at Cambridge University.  He demonstrated the mathematical 
+relation between electric magnetic fields, and showed that light is 
+made up of electromagnetic waves. He also co-developed the kinetic theory 
+of gases and pioneered colour photography in his spare time.
+
+\subsection{Demons}
+But he had a lot of demons.  And since the topic of demons is very
+broad, Damian turned to O'Reilly title by the name of \textit{Daemonia 
+intra Putamen} or ``Demons in a Nutshell.''
+
+They are many in number:
+\begin{description}
+\item[Notnilc]The Lord of Hiding Stains until They Become Publicly Embarrasing
+\item[Aybud] Lord of Having One's Finger on the Big Red Button and Thinking
+It's Pronounced ``Nuculer.''
+\item[Siger] The tempter
+\item[Setag] Harbinger of the Blue Screen
+\end{description}
+
+But let us not forget, \textit{Daemonia Perligata}.
+
+\begin{description}
+\item[Mot] Slayer with a Single Word (Tom Christiansen)
+\item[Kram] Flayer with a Single Glance (Mark Jason Dominus)\\
+Also known to the Cherokee as Sunemodd (Dances with Octopus)
+\item[Iru] Breaker of Shift Keys (Uri Guttman)
+\item[Imeinateith] Bestower of Names that are Easier to Pronounce Backwards
+(Jarkko Htietaniemi)
+\item[Tang] Bringer of Banjoes (Nathan Torkington)
+\item[Relda] Svengali of Magnetic Attraction over Women (Dave Adler)
+\item[Ladnar] The Murderer of Cabaret Songs (Randal Schwartz)
+\end{description}
+
+\subsection{Maxwell's Demon}
+However, the name of Maxwell's demon is unknown.  It is a
+\textit{GedankenD\"amon}, which is German for ``Oh God,
+Damian has been thinking again.''
+
+The idea is seductively simple.  Imagine two chambers separated by a 
+common wall, with a hole in it.  The hole is covered by a door, and
+a little demon controls it.  If the demon
+sees a fit, young, energetic particle, approaching from the right,
+it lifts the cover and lets the particle through, 
+then immediately covers the hole.  If it
+sees a decrepit, old, lethargic particle approaching from the right, it
+also lifts the cover and again immediately lets it drop.
+
+When the cover is in place, no particles can change sides.  So, in
+theory, everthing energetic ends up in the left hand chamber so it 
+gets hotter.  Which means that the right side gets colder.  So, we
+can use this heat difference to drive a
+thermocouple to get free energy.  Oops!  We just broke the Second Law of
+Thermodynamics.
+
+\[dS \ge \frac{dQ}{T}\]
+Which basically says: ``Left to themselves, things only ever go from 
+bad to worse.''
+
+The demon only the lifts the cover when a particle approaches from 
+the right.  So you intuit that eventually, all the particles are in the
+left chamber, and you have a perfect vacuum in the right.
+And then, you can use the pressure difference to drive a turbine.  
+Oh drat!  
+
+Well, it took about 70 years to produce a compelling proof that 
+this is whole load of nonsense.
+
+\[ep_{min} = k_b T \ln 2 \le -\frac{q}{R}\]
+This basically says: ``Making decisions heats your brain, so the energy 
+gained from lifting the cover is spent by making the decision.''  
+Of course, this doesn't give us a feel for why it doesn't work.
+
+\subsection{Are you compelled?}
+No, I thought not.  So let's use Perl to examine this connundrum.
+
+\subsection{When in doubt... simulate!}
+Remember the Game of Life?\\
+Remember gliders?\\
+Bouncing around?\\
+They're a bit like molecules, aren't they?
+
+We don't need complete gliders simulate molecules, we just need to 
+change the rules of the Universe.
+
+So Damian makes a very small board, with three numbers, \verb'1'
+\verb'2' \verb'3', and with a series of rules.  Move the number \verb'1'
+one square down and one square right.  Move the number \verb'2' one
+square right.  Move the number \verb'3' one square up.  Notice how they
+are all moving at the speed of light.
+
+This is great, but they all smashed into walls and destroyed themselves.
+A more interesting idea was to make them bounce off the walls.  A
+\verb'1' that bounces off a wall becomes a \verb'2'.  A \verb'2' that
+bounces becomes a \verb'3'.  A \verb'3' becomes a \verb'4'.  A \verb'4'
+becomes a \verb'1'.
+
+So, let's put a whole lot of them in there and run the simulation.  
+They travel for a bit, but eventually, they start colliding into
+each other and some of them died off.  This
+is because you can only have one number per cell.  (The Pauli Exclusion
+Principle at work?)
+
+Now you do not need more rules to handle these cases, you just need
+quantum cellular automata.  Now, with quantum math, the result will be
+the result of \emph{all} those results.  Damian uses an \verb'@' sign to
+indicate if two numbers intersect, and since they are suppositions, the
+cell remembers all the values it contains.  Let's put some numbers on
+the board, and see what happens.  They start superimposing, and
+de-superimpose and keep on going.
+
+If you get a really big screen, the algorithm works at O($n^2$) and
+slows to a crawl.  The way around this is to use superpositioned
+procedural rules.  We calculate all of them at the same time, using a
+state hash to check for \emph{all} the potential states.  Now, once we
+have worked out all these states as rules, we get the results of all the
+states.
+
+He runs the simulation one more time, and then uses the \verb'mapout'
+call to turn all the numerals into \verb'.' characters, because
+molecules are tiny little things.
+
+\subsection{Summoning the demon}
+So now we have a box of molecules with an arbitrary number of molecules.
+We just need to add a demon, so we start by parameterising the molecules.
+Now, we need a \verb'fill' subroutine, which will take the 
+width, height and number of modules, make a board, and fill the 
+board with a random placement.  
+
+The next thing to do is to put a barrier down the middle, or a wall.
+The particles bounce off the wall and cannot go side to side.  This is
+implemented by another DFA::Cellular::ProcRule.
+
+Now we build a shutters in to the wall.  We need to change the rule so 
+that when the shutter detects a particle on the right side, the particle 
+can go through.  With only a few particles, they move to the left.  
+However, with a more reasonable number of particles, the doors are 
+mostly open, so that the ones on the left side can cross through as
+well.
+
+The obvious thing to prevent this is to not open the doors if there are
+particles on the left side!  This causes the doors
+to eventually stay closed, because the left chamber fills up with a
+small imbalance of molecules, and there are alost always particles on
+the left of each door.
+
+Which goes and proves to us why we can't make devices that violate
+Laws of the Cosmos.
+
+\subsection{What about Klingon?}
+Well, Damian promised that he'd get back to Klingon.  What if he tied
+together Discrete Finite Automata (Life) and Maxwell's Demon (Everything)
+You get\ldots
+
+\subsection{Weird Reality}
+The Linga::tlhInganHol::yIghul\footnote{Coincidentally written by a
+brilliant, young Australian programmer.} module actually exists!
+
+Damian presented to us:
+A Perl program that spans six centuries:
+\begin{itemize}
+\item 18th century physics, 
+\item 19th century philosophical connundrum, 
+\item 20th century mathematical model, 
+\item 21st century programming language, 
+\item 22nd century quantum computation, (because that's how long it'll
+take them)
+\item 23rd century source code.
+\end{itemize}
+
+And we have Maxwell's Celluar Automata in Klingon!  Damian proudly
+displayed this horror on screen, which garnered applause from the
+audience.
+
+\section{A gift!}
+Richard Dice wanted to say some thing to Damian.  
+This is the conclusion of the
+silly talks.  The next talk is very serious, and worth going to.
+Richard presents a book entitled ``Eunoia'' to Damian.  A Toronto author
+by the name of B\"ok wrote this book, and he is
+a linguist, artist and author.  The book is a lipogram;
+which is a class of books where there is no `a' in the first chapter, 
+and no `b' in the second chapter, and so on.  In ``Eunoia'', the chapters 
+are `A', `E', `I', `O' and `U'.  Each chapter only uses that one vowel.
+Richard thought it was fitting because it's the book form of Damian's 
+talks.  ``Eunoia'' means beautiful thinking and is the shortest word 
+that contains all the vowels.
+
+\section{Questions}
+Now, Damian is trying to decide the topic of Thursday's talk.  It could
+either be about Perl 6 syntax, or it could on the topic of porting Perl
+5 programs to Perl 6.  The audience thought that the porting talk would
+be very useful; one person who came down from IBM mentioned that the
+IBM'ers who were to attend the Thursday talk would benefit more from the
+porting talk.  From the consensus, it looks like we will be getting the
+Perl 5 to Perl 6 porting talk; where Damian will port practical Perl 5
+programs right before our eyes.
+
+Damian says that the difference between this year's Perl 6 talk; and
+last year's Perl 6 talk, is that he is actually correct this year.
+
+He guesses that Perl 6 is about 18 months away.  
+He said that last year, but he is actually correct now.
+
+\end{document}
+% vim: set tw=72

@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+
+# This is orkut2dot, a screenscraping tool to generate dotty graphs
+# Copyright (C) 2004  Simon Law
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# Usage:
+# orkut2dot username password userid [...]
+
+use strict;
+use warnings;
+use English;
+
+use Term::ReadKey;
+
+# Check the arguments
+my $username = shift (@ARGV);
+my $password = shift (@ARGV);
+my @userids = (@ARGV);
+unless ($username) {
+    print (STDERR 'Username: ');
+    $username = ReadLine(0);
+    chomp ($username);
+}
+unless ($password) {
+    print (STDERR 'Password: ');
+    ReadMode('noecho');
+    $password = ReadLine(0);
+    chomp ($password);
+    ReadMode('restore');
+    print (STDERR "\n");
+}
+
+# Initialize WWW::Mechanize
+use WWW::Mechanize;
+my $mech = WWW::Mechanize->new (autocheck => 1);
+$mech->agent_alias ('Linux Mozilla');
+
+# Go to the homepage
+$mech->get ("http://www.orkut.com");
+
+# Fill out the username and password
+$mech->set_visible ($username, $password);
+$mech->click ("Submit");
+
+# Subroutines
+sub print_node ($) {
+    # Get the page for this userid, print its node, and find its friends
+    my $userid = shift (@_);
+
+    # Grab the FriendsList page for the current node.
+    $mech->get ("http://www.orkut.com/FriendsList.aspx?uid=$userid");
+
+    # Extract the name for this userid and print it
+    my $link = $mech->find_link (url_regex => qr/uid=$userid/);
+    my $name = $link->text ();
+    print ("\"$userid\" [label=\"$name\"]\n");
+
+    # Get an array of its friends, as userids
+    my @links = $mech->links ();
+    my @friends;
+    for my $link (@links) {
+	if ($link->url () =~ m/FriendsList.aspx\?uid=(\d*)/) {
+	    push (@friends, $1) unless ($link->text () eq '[IMG]');
+	}
+    }
+    return @friends;
+}
+
+sub crawl_deeper (\%$) {
+    # We just look at each friend, and populate %$friendsref as necessary.
+    my $friendsref = shift (@_);
+    my $userid = shift (@_);
+
+    # Get the page for this userid, print its node, and find its friends
+    my @friends = print_node ($userid);
+
+    # Append these friends to the hash-table entry
+    push (@{$$friendsref{$userid}}, @friends);
+}
+
+sub crawl (\%$) {
+    # We'll look at the FriendsList and grab each friend.  We'll draw
+    # an oval for this friend, and return the array of their userids.
+    my $friendsref = shift (@_);
+    my $userid = shift (@_);
+
+    # Get the page for this userid, print its node, and find its friends
+    my @friends = print_node ($userid);
+
+    # Append these friends to the hash-table entry
+    push (@{$$friendsref{$userid}}, @friends);
+
+    # Get the friendship information for each friend
+    for my $friend (@friends) {
+	crawl_deeper (%$friendsref, $friend);
+    }
+
+    # Return my list of visible friends
+    return @friends;
+}
+
+# We should print the dotty header
+print <<EOT;
+digraph \"orkut-friends\" {
+overlap=scale
+splines=true
+sep=.1
+EOT
+
+# We'll store our list of friends in a hash-table.  The key will be
+# the userid, and the value will be an array of friends' userids.
+my %friends;
+
+# Now we are logged in.  If the user has specified any userids, we
+# should start crawling those now.  Otherwise, crawl the logged-in
+# user's friends.
+unless (@userids) {
+    # Extract userid from the "view friends" button
+    my $link = $mech->find_link (url_regex => qr/FriendsList.aspx/);
+    my $userid = $link->url ();
+    $userid =~ s/.*uid=(\d*).*/$1/;
+    push (@userids, $userid);
+}
+my @visible = @userids;
+for my $userid (@userids) {
+    push (@visible, crawl (%friends, $userid));
+}
+
+# We've finished crawling through the list of friends, which means
+# we'll have drawn some ovals.  Now we can express the relationships
+# between these ovals.  However, since only @visible have ovals drawn,
+# we'll only specify those relationships.
+for my $userid (@visible) {
+    # Draw relationships
+    print "{";
+
+    # Only print nodes for @visible
+    my @shown = grep {
+	my $f = $_;
+	grep ($f == $_, @visible);
+    } @{$friends{$userid}};
+    map {
+	print (" \"$_\"");
+    } @shown;
+
+    print (" } -> \"$userid\"\n");
+}
+
+# Now print the footer
+print ("}\n");

@@ -1,0 +1,144 @@
+You can find Henrique's paper at http://people.debian.org/~hmh/
+
+<coleSLAW> But yes, that's basically it.
+<coleSLAW> HMH has gotten to the good stuff now.
+<coleSLAW> \begin{lecture}
+<coleSLAW> Some Debian maintainers want to add a sependency-based init script
+           system to Debian, with parallel execution of scripts.
+02:49PM <jbailey> *lol8
+02:49PM <jbailey> at first I read that as HGH
+02:50PM <jbailey> Woohoo! paralllel execution!
+<coleSLAW> So it looks like this is the right time to fix the abstraction
+           layer to support dependency based system.
+<coleSLAW> We should also add proper logging of init script activity, and a
+           init script registry.
+<coleSLAW> We will have a Debian init script registry
+<coleSLAW> It will:
+<coleSLAW> - Store the name of all packages using init scripts
+<coleSLAW> - Store the services they provide, and what order number they use
+<coleSLAW> - Store a list of "virutal facilities" we define for
+           dependency-based systems
+<coleSLAW> All the databases will be simple, human and machine readable text
+           files.  No overengineering allowed!
+<coleSLAW> Linda and lintian warnings will be added to help Debian developers
+           to use it.
+<coleSLAW> \commentFromAudience{This looks like it won't scale.  Especially to
+           stuff outside Debian.}
+<coleSLAW> \commenFromAudience[Branden]{This is like an appendix to Policy,
+           and doesn't actually affect boot time.}
+<coleSLAW> He also wants a telinit command line interface
+<coleSLAW> Allows us to change /sbin/init without breaking everything else.
+<coleSLAW> Defines what maintainer scripts can ask init to do.
+<coleSLAW> \commentFromAudience{The names of the init scripts, are they Debian
+           specific?}
+<coleSLAW> This is something that needs to be hashed out when we start asking
+           for public comments.
+<coleSLAW> Logging and init script output control.
+<coleSLAW> Parallel execution of init script systems need to control and
+           demultiplex the output of init scripts, so they need output
+           control.
+<coleSLAW> Output control allows us to log the system bootup process
+           completely.
+02:54PM <ajmitch> woohoo, realtime commentary :)
+<coleSLAW> GUI freaks can add a graphical frontend to system bootup, like
+           Mandrake.
+<coleSLAW> People like Lindows can pipe boot logs to /dev/null.
+<coleSLAW> We should reduce the runlevel set to four runlevels from the
+           maintainer point of view:
+<coleSLAW> - system startup
+<coleSLAW> - single user mode
+<coleSLAW> - multi-user mode
+<coleSLAW> - system shutdown / reboot
+<coleSLAW> This is _already_ enshrine in Policy
+<coleSLAW> ajmitch: Damn straight.
+02:55PM <ajmitch> :)
+<coleSLAW> We want to unify system startup and shutdown runlevels
+<coleSLAW> - it makes more sense for users and is much easier to implement in
+           dependency-based systems
+<coleSLAW> ajmitch: We've got a video camera, but we just can't stream video.
+02:56PM <ajmitch> ah, a pity
+02:56PM ð ajmitch/#thug is on slow DSL anyway
+02:56PM <ajmitch> interesting stuff tho
+<coleSLAW> Startup scripts should go from runlevels 1 - 3, and to shutdown it
+           would be good to go from 3 - 1 and shutdown the services in the
+           reverse order.
+<coleSLAW> \commentFromAudience{Do you forsee a conflict with LSB with
+           runlevels?  Debian does only one multi-user runlevel, 2345.  While
+           LSB may want to use runlevel 5 as a graphical (XDM) runlevel.}
+<coleSLAW> We are trying to be as close to the LSB as we can.  However, if you
+           follow the LSB closely, you cripple Debian.
+03:02PM <jbailey> "and the lsb licks ass"
+<coleSLAW> jbailey: We had a pretty interested LSB talk this morning
+<coleSLAW> \commentFromAudience{Using update-rc.d and invoke-rc.d are
+           confusing the namespace.  We should be using rc.d-invoke or
+           something like that; to stop breaking robots.}
+<coleSLAW> Two months of flamewars were endured, and nobody came up with
+           arguments against this.
+<coleSLAW> We want a new init script action "restart-if-running" which is
+           needed in dynamic dependency systems if we want to be able to
+           restart other services that depend on one that is restarted
+<coleSLAW> Extend update-rc.d to register dependency information, which static
+           systems need it.
+<coleSLAW> We can write the dynamic depndency interface
+<coleSLAW> - init-provice
+<coleSLAW> - init-before (optional)
+<coleSLAW> - init-after
+<coleSLAW> - init-test
+<coleSLAW> If we want to change the name for update-rc.d, then go on
+           debian-policy@l.d.o to change the naming convention.
+<coleSLAW> \commentFromAudience{If we have a lot of scripts with task-subject,
+           instead of subject-task.  That way, you can do update<TAB> you get
+           less useful information that rc.d<TAB>.}
+<coleSLAW> That's a good idea.  If someone steps up to the plate, and wants to
+           do a big convresion; it is not too late.
+<coleSLAW> \commentFromAudience{What about the LSB status command}
+<coleSLAW> It just tells us what the status of the service is running or not.
+<coleSLAW> We could become closer to the LSB if we fold the dependency
+           interface in there, but the advantages of that are questionable.
+<coleSLAW> init-provide means that this script will provide this functionality
+<coleSLAW> init-before means that there are dependices
+<coleSLAW> init-before (like an forced ordering.)
+<coleSLAW> init-after is like a Depends:
+<coleSLAW> init-test does testing on dependency structure (Ed: I'm not sure I
+           caught this correctly.)
+<coleSLAW> \commentFromAudience{How complicated will it be for a user to
+           create a new initscript.}
+<coleSLAW> We are trying to make it as close to SysV as possible, so scripts
+           still go in /etc/init.d  We should not make it difficult for users
+           to add dependencies to these scripts.  Maybe some utility like
+           add-script could be written.
+<coleSLAW> \messyDiscussionSummary{We should have some sort of transition
+           between classic SysV with S##/K## and the dependency based systems.
+            Maybe we could put the dependency systems first, and then run any
+           S##/K## later.}
+03:17PM <jbailey> coleSLAW: Can you ask during question period if they'll
+          document Best Practice for people who are used to stuffing things in
+          S99local ?
+<coleSLAW> Will do.
+03:18PM <jbailey> Tx.
+<coleSLAW> I think I'll drop by your place after the conference, so I can hand
+           you $20.  Is that OK?
+03:18PM <jbailey> Err.  Okay.
+03:19PM <jbailey> That's horribly out of your way.
+<coleSLAW> Stupid parking tickets.  Grumble.
+03:19PM <jbailey> Unless you just want books.
+03:19PM <jbailey> And I'm a good excuse.
+<coleSLAW> That's cool, actually.  Book shopping would be nice.
+<coleSLAW> \discussion{With parallel execution, and some good dependencies; we
+           won't block.  For a while, FreeS/WAN could block for 45 minutes.
+           Joey Hess brought up the comment that we could have things depend
+           on /usr being mounted so we parallise fsck.}
+<coleSLAW> What remains to be done?
+<coleSLAW> \editor{I wrote this already...  Nevermind.}
+<coleSLAW> We can have some nice flamewars on the mailing lists.
+<coleSLAW> \commentary[Branden]{Let's tie them to a streetcar and drag them
+           downtown.}
+<coleSLAW> Perhaps we can design the system to make it easier for sysadmins to
+           modularly add local scripts, so they won't need such an abomination
+           like S99local.
+<coleSLAW> \editor{Oh, Branden was responding to your question, jbailey.}
+<coleSLAW> \end{lecture}
+03:26PM <jbailey> coleSLAW: Tx.
+<coleSLAW> I should have hooked up to the network yesterday and the day
+           before.
+<coleSLAW> Then I could have done IRC transcripts.
