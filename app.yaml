@@ -1,5 +1,5 @@
 application: sfllaw-website
-version: 0-1
+version: 0-2
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -15,7 +15,11 @@ handlers:
   # Real site
   - url: /
     static_files: static/index.html
-    upload: static/index.html
+    upload: static/index\.html
+
+  - url: /(.*)/
+    static_files: static/\1/index.html
+    upload: static/.*/index\.html
 
   - url: /
     static_dir: static
